@@ -10,27 +10,129 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import jmr.descriptor.color.SingleColorDescriptor;
+import jmr.initial.descriptor.mpeg7.MPEG7DominantColors;
+import jmr.initial.descriptor.mpeg7.MPEG7EdgeHistogram;
+import jmr.db.ListDB;
+import java.util.ArrayList;
+import java.lang.Math;
+import jmr.descriptor.label.SingleLabelDescriptor;
+import jmr.descriptor.DescriptorList;
+import jmr.media.JMRExtendedBufferedImage;
+import FernanDescriptors.GreyScaleDescriptor;
+import FernanDescriptors.GreyScaleMediaDescriptor;
 /**
  *
  * @author Fernando Roldán Zafra
  */
-public class PruebasJMR {
 
+public class PruebasJMR {
+    
+    public static void changeNameFiles(){
+    
+        File folder = new File("D:/Dropbox/Apuntes/TFG/Imagenes");
+            File[] listOfFiles = folder.listFiles();
+
+            for (int i = 0; i < listOfFiles.length; i++) {
+
+                if (listOfFiles[i].isFile()) {
+                    
+                    File f = new File("D:/Dropbox/Apuntes/TFG/Imagenes/"+listOfFiles[i].getName()); 
+                    System.out.println(listOfFiles[i].getName());
+                    f.renameTo(new File("D:/Dropbox/Apuntes/TFG/Imagenes/"+i+".jpg"));
+                }
+            }
+    }
+    /*
+    public static double distancia(SingleColorDescriptor imagen1, SingleColorDescriptor imagen2){
+        double r1 = imagen1.color.getRed();
+        double r2 = imagen2.color.getRed();
+        double g1 = imagen1.color.getGreen();
+        double g2 = imagen2.color.getGreen();
+        double b1 = imagen1.color.getBlue();
+        double b2 = imagen2.color.getBlue();
+               
+        return Math.sqrt(Math.pow((r1-r2),2)+Math.pow((g1-g2),2)+Math.pow((b1-b2),2));
+    }
+    */
     public static void main(String[] args) {
-       BufferedImage img = null;
-       Image image = null;
-       try{
-           File sourceImage = new File ("D:/Dropbox/Apuntes/TFG/Imagenes/images.jpg");
-           img = ImageIO.read(sourceImage);
-       } catch (IOException e){
-           e.printStackTrace();
-       }
+        //changeNameFiles();
        
-       SingleColorDescriptor color = new SingleColorDescriptor(img);
-       System.out.println(color.toString());
-       
-       
-       
+        BufferedImage img1 = null;
+        BufferedImage img2 = null;
+        BufferedImage img3 = null;
+
+        try{
+        File sourceImage = new File ("D:/Dropbox/Apuntes/TFG/Imagenes/"
+            + Integer.toString(68) + ".jpg");
+        img1 = ImageIO.read(sourceImage);
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        
+        try{
+        File sourceImage = new File ("D:/Dropbox/Apuntes/TFG/Imagenes/"
+            + Integer.toString(6) + ".jpg");
+        img2 = ImageIO.read(sourceImage);
+        
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        
+        try{
+        File sourceImage = new File ("D:/Dropbox/Apuntes/TFG/Imagenes/" +
+            "15.jpg");
+        img3 = ImageIO.read(sourceImage);
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        
+        DescriptorList imagen1 = new DescriptorList(img1);
+        DescriptorList imagen2 = new DescriptorList(img2);        
+        
+        SingleColorDescriptor Desc1 = new SingleColorDescriptor(img1);
+        imagen1.add(Desc1);
+        
+        SingleLabelDescriptor Desc2 = new SingleLabelDescriptor(img1);
+        imagen1.add(Desc2);
+        
+        System.out.println(imagen1.toString());
+        
+        
+        /*
+        SingleColorDescriptor Desc1 = new SingleColorDescriptor(img1);
+        System.out.println(Desc1.toString());
+        SingleColorDescriptor Desc2 = new SingleColorDescriptor(img2);
+        System.out.println(Desc2.toString());
+        System.out.println(Desc1.compare(Desc2).toString());
+        System.out.println("--------------------------------------------------");
+        //MPEG7DominantColors Desc3 = new MPEG7DominantColors(img1);
+        //System.out.println(Desc3.getNumberOfDominantColors());
+        //System.out.println(Desc3.getDominantColor(0).getColor());
+        //MPEG7DominantColors Desc4 = new MPEG7DominantColors(img2);
+        //System.out.println(Desc4.toString());
+        System.out.println("--------------------------------------------------");
+        JMRExtendedBufferedImage imgJMR1 = new JMRExtendedBufferedImage(img1);
+        JMRExtendedBufferedImage imgJMR2 = new JMRExtendedBufferedImage(img2);
+        MPEG7EdgeHistogram Desc5 = new MPEG7EdgeHistogram();
+        Desc5.calculate(imgJMR1);
+        System.out.println(Desc5.toString());
+        MPEG7EdgeHistogram Desc6 = new MPEG7EdgeHistogram(imgJMR2);
+        System.out.println(Desc6.toString());
+        System.out.println("--------------------------------------------------");
+        SingleLabelDescriptor Desc7 = new SingleLabelDescriptor(img1);
+        System.out.println(Desc7.getLabel());
+        SingleLabelDescriptor Desc8 = new SingleLabelDescriptor(img2);
+        System.out.println(Desc8.getLabel());
+        System.out.println("--------------------------------------------------");
+        GreyScaleDescriptor Desc9 = new GreyScaleDescriptor(img3);
+        System.out.println(Desc9.toString());
+        GreyScaleMediaDescriptor Desc10 = new GreyScaleMediaDescriptor(img3);
+        System.out.println(Desc10.toString());
+        */
+        
+        
+        
+        
     }
     
 }
