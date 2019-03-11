@@ -92,8 +92,11 @@ public class PruebasJMR {
         SingleColorDescriptor Desc1 = new SingleColorDescriptor(img1);
         imagen1.add(Desc1);
         
-        SingleLabelDescriptor Desc2 = new SingleLabelDescriptor(img1);
-        imagen1.add(Desc2);
+       //SingleLabelDescriptor Desc2 = new SingleLabelDescriptor(img1);
+        //imagen1.add(Desc2);
+        
+        MPEG7DominantColors Desc3 = new MPEG7DominantColors(img1);
+        imagen1.add(Desc3);
         
         System.out.println(imagen1.toString());
         
