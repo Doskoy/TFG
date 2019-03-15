@@ -20,6 +20,9 @@ import jmr.descriptor.DescriptorList;
 import jmr.media.JMRExtendedBufferedImage;
 import FernanDescriptors.GreyScaleDescriptor;
 import FernanDescriptors.GreyScaleMediaDescriptor;
+import FernanDescriptors.DescriptorLista;
+import jmr.descriptor.label.LabelDescriptor;
+import FernanDescriptors.MiListaDescriptores;
 /**
  *
  * @author Fernando Roldán Zafra
@@ -86,20 +89,31 @@ public class PruebasJMR {
             e.printStackTrace();
         }
         
-        DescriptorList imagen1 = new DescriptorList(img1);
-        DescriptorList imagen2 = new DescriptorList(img2);        
+        //LabelDescriptor etiq = new LabelDescriptor(img1);
         
-        SingleColorDescriptor Desc1 = new SingleColorDescriptor(img1);
-        imagen1.add(Desc1);
+        //MiListaDescriptores imagen1 = new MiListaDescriptores(img1);
+        //MiListaDescriptores imagen2 = new MiListaDescriptores(img2);        
+        
+        
         
        //SingleLabelDescriptor Desc2 = new SingleLabelDescriptor(img1);
         //imagen1.add(Desc2);
+        //double Dif = 0.0;
+        //Dif = imagen1.compare(imagen2);
         
-        MPEG7DominantColors Desc3 = new MPEG7DominantColors(img1);
-        imagen1.add(Desc3);
+        //DescriptorLista.ComparatorHist c  = new DescriptorLista.ComparatorHist();
+        //imagen1.setComparator(c);
+        //Dif = imagen1.compare(imagen2);
         
-        System.out.println(imagen1.toString());
         
+        //System.out.println(imagen1.getEtiqueta());
+        //System.out.println(imagen2.getEtiqueta());
+        //System.out.println(Dif);
+        
+        SingleColorDescriptor Desc1 = new SingleColorDescriptor(img1);
+        System.out.println(Desc1.toString());
+        SingleColorDescriptor Desc2 = new SingleColorDescriptor(img2);
+        System.out.println(Desc2.toString());
         
         /*
         SingleColorDescriptor Desc1 = new SingleColorDescriptor(img1);
