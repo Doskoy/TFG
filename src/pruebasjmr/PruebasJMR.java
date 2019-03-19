@@ -23,6 +23,7 @@ import FernanDescriptors.GreyScaleMediaDescriptor;
 import FernanDescriptors.DescriptorLista;
 import jmr.descriptor.label.LabelDescriptor;
 import FernanDescriptors.MiListaDescriptores;
+import DescriptorsFernan.LabelProperties;
 /**
  *
  * @author Fernando Roldán Zafra
@@ -63,7 +64,32 @@ public class PruebasJMR {
         BufferedImage img1 = null;
         BufferedImage img2 = null;
         BufferedImage img3 = null;
-
+        
+        try{
+        File sourceImage = new File ("C:/Users/Fernando/Dropbox/Apuntes/TFG/Imagenes/"
+            + Integer.toString(68) + ".jpg");
+        img1 = ImageIO.read(sourceImage);
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        
+        try{
+        File sourceImage = new File ("C:/Users/Fernando/Dropbox/Apuntes/TFG/Imagenes/"
+            + Integer.toString(6) + ".jpg");
+        img2 = ImageIO.read(sourceImage);
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        
+        try{
+        File sourceImage = new File ("C:/Users/Fernando/Dropbox/Apuntes/TFG/Imagenes/"
+            + Integer.toString(15) + ".jpg");
+        img3 = ImageIO.read(sourceImage);
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        
+        /*
         try{
         File sourceImage = new File ("D:/Dropbox/Apuntes/TFG/Imagenes/"
             + Integer.toString(68) + ".jpg");
@@ -88,7 +114,7 @@ public class PruebasJMR {
         } catch (IOException e){
             e.printStackTrace();
         }
-        
+        */
         //LabelDescriptor etiq = new LabelDescriptor(img1);
         
         //MiListaDescriptores imagen1 = new MiListaDescriptores(img1);
@@ -110,10 +136,12 @@ public class PruebasJMR {
         //System.out.println(imagen2.getEtiqueta());
         //System.out.println(Dif);
         
-        SingleColorDescriptor Desc1 = new SingleColorDescriptor(img1);
+        LabelProperties Desc1 = new LabelProperties(img1,SingleColorDescriptor.class,jmr.descriptor.color.MPEG7ScalableColor.class);
         System.out.println(Desc1.toString());
-        SingleColorDescriptor Desc2 = new SingleColorDescriptor(img2);
+        LabelProperties Desc2 = new LabelProperties(img2,SingleColorDescriptor.class);
         System.out.println(Desc2.toString());
+        
+        
         
         /*
         SingleColorDescriptor Desc1 = new SingleColorDescriptor(img1);
