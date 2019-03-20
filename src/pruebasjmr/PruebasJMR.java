@@ -140,6 +140,7 @@ public class PruebasJMR {
         System.out.println(Desc1.toString());
         LabelProperties Desc2 = new LabelProperties(img2,SingleColorDescriptor.class);
         System.out.println(Desc2.toString());
+        Desc1.compare(Desc2);
         
         
         

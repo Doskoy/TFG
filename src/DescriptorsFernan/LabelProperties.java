@@ -8,6 +8,8 @@ import jmr.descriptor.MediaDescriptor;
 import jmr.descriptor.Comparator;
 import jmr.descriptor.DescriptorList;
 import jmr.descriptor.MediaDescriptorFactory;
+import jmr.descriptor.label.LabelDescriptor.WeightBasedComparator;
+
 
 /**
  * This class is a descriptor of an image wich is compone
@@ -44,9 +46,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     public LabelProperties (BufferedImage image, Class<? extends MediaDescriptor>... classProperties){
         super(image, new DefaultComparator());
         this.classProperties = classProperties;
-        this.properties = new DescriptorList(image);
-        this.label = new LabelDescriptor(image);
-        this.initProperties();
+        this.init(image);
     }
     
     /**
@@ -56,6 +56,9 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     @Override
     public void init(BufferedImage image){
         
+        this.properties = new DescriptorList(image);
+        this.label = new LabelDescriptor(image);
+        this.initProperties();
     }
     
     /*
@@ -83,10 +86,20 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     }
     
     static class DefaultComparator implements Comparator <LabelProperties, Double> {
-    
+        /**
+         * Compara dos objetos de la clase LabelProperties, define el comparador 
+         * de las etiquetas como el "WeightBasedComparator" con el modo "media" 
+         * y con solo inclusion de las etiquetas.
+         * @param t
+         * @param u
+         * @return 
+         */
         @Override
         public Double apply(LabelProperties t, LabelProperties u){
+            //WeightBasedComparator comparador = new WeightBasedComparator(3,true);
+            //t.label.setComparator(comparador);
             return 0.0;
+
         }
     }
 
