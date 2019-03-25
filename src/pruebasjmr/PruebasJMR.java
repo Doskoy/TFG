@@ -10,8 +10,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import jmr.descriptor.color.SingleColorDescriptor;
-import jmr.initial.descriptor.mpeg7.MPEG7DominantColors;
-import jmr.initial.descriptor.mpeg7.MPEG7EdgeHistogram;
 import jmr.db.ListDB;
 import java.util.ArrayList;
 import java.lang.Math;
@@ -24,6 +22,8 @@ import FernanDescriptors.DescriptorLista;
 import jmr.descriptor.label.LabelDescriptor;
 import FernanDescriptors.MiListaDescriptores;
 import DescriptorsFernan.LabelProperties;
+import jmr.descriptor.color.MPEG7ColorStructure;
+import jmr.descriptor.color.MPEG7ScalableColor;
 /**
  *
  * @author Fernando Roldán Zafra
@@ -46,61 +46,63 @@ public class PruebasJMR {
                 }
             }
     }
-    /*
-    public static double distancia(SingleColorDescriptor imagen1, SingleColorDescriptor imagen2){
-        double r1 = imagen1.color.getRed();
-        double r2 = imagen2.color.getRed();
-        double g1 = imagen1.color.getGreen();
-        double g2 = imagen2.color.getGreen();
-        double b1 = imagen1.color.getBlue();
-        double b2 = imagen2.color.getBlue();
-               
-        return Math.sqrt(Math.pow((r1-r2),2)+Math.pow((g1-g2),2)+Math.pow((b1-b2),2));
-    }
-    */
     public static void main(String[] args) {
         //changeNameFiles();
        
         BufferedImage img1 = null;
         BufferedImage img2 = null;
         BufferedImage img3 = null;
+        BufferedImage img4 = null;
+        BufferedImage img5 = null;
+        
+//        try{
+//        File sourceImage = new File ("C:/Users/Fernando/Dropbox/Apuntes/TFG/Imagenes/"
+//            + Integer.toString(68) + ".jpg");
+//        img1 = ImageIO.read(sourceImage);
+//        } catch (IOException e){
+//            e.printStackTrace();
+//        }
+//        
+//        try{
+//        File sourceImage = new File ("C:/Users/Fernando/Dropbox/Apuntes/TFG/Imagenes/"
+//            + Integer.toString(6) + ".jpg");
+//        img2 = ImageIO.read(sourceImage);
+//        } catch (IOException e){
+//            e.printStackTrace();
+//        }
+//        
+//        try{
+//        File sourceImage = new File ("C:/Users/Fernando/Dropbox/Apuntes/TFG/Imagenes/"
+//            + Integer.toString(15) + ".jpg");
+//        img3 = ImageIO.read(sourceImage);
+//        } catch (IOException e){
+//            e.printStackTrace();
+//        }
+        
         
         try{
-        File sourceImage = new File ("C:/Users/Fernando/Dropbox/Apuntes/TFG/Imagenes/"
-            + Integer.toString(68) + ".jpg");
+        File sourceImage = new File ("D:/Dropbox/Apuntes/TFG/Imagenes/blanco.png");
+        img4 = ImageIO.read(sourceImage);
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        try{
+        File sourceImage = new File ("D:/Dropbox/Apuntes/TFG/Imagenes/negro.jpg");
+        img5 = ImageIO.read(sourceImage);
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        try{
+        File sourceImage = new File ("D:/ImagenesTFG/Data/CLS-LOC/train/n03134739/"
+            + "n03134739_438.JPEG");
         img1 = ImageIO.read(sourceImage);
         } catch (IOException e){
             e.printStackTrace();
         }
         
         try{
-        File sourceImage = new File ("C:/Users/Fernando/Dropbox/Apuntes/TFG/Imagenes/"
-            + Integer.toString(6) + ".jpg");
-        img2 = ImageIO.read(sourceImage);
-        } catch (IOException e){
-            e.printStackTrace();
-        }
-        
-        try{
-        File sourceImage = new File ("C:/Users/Fernando/Dropbox/Apuntes/TFG/Imagenes/"
-            + Integer.toString(15) + ".jpg");
-        img3 = ImageIO.read(sourceImage);
-        } catch (IOException e){
-            e.printStackTrace();
-        }
-        
-        /*
-        try{
         File sourceImage = new File ("D:/Dropbox/Apuntes/TFG/Imagenes/"
-            + Integer.toString(68) + ".jpg");
-        img1 = ImageIO.read(sourceImage);
-        } catch (IOException e){
-            e.printStackTrace();
-        }
-        
-        try{
-        File sourceImage = new File ("D:/Dropbox/Apuntes/TFG/Imagenes/"
-            + Integer.toString(6) + ".jpg");
+           + "Alemania.jpg");
         img2 = ImageIO.read(sourceImage);
         
         } catch (IOException e){
@@ -109,47 +111,66 @@ public class PruebasJMR {
         
         try{
         File sourceImage = new File ("D:/Dropbox/Apuntes/TFG/Imagenes/" +
-            "15.jpg");
+            "Belgica.jpg");
         img3 = ImageIO.read(sourceImage);
         } catch (IOException e){
             e.printStackTrace();
         }
-        */
+        
         //LabelDescriptor etiq = new LabelDescriptor(img1);
         
         //MiListaDescriptores imagen1 = new MiListaDescriptores(img1);
         //MiListaDescriptores imagen2 = new MiListaDescriptores(img2);        
         
         
-        
-       //SingleLabelDescriptor Desc2 = new SingleLabelDescriptor(img1);
+//        
+//        SingleLabelDescriptor singledescriptor1 = new SingleLabelDescriptor(img1);
+//        SingleLabelDescriptor singledescriptor2 = new SingleLabelDescriptor(img3);
+//        MPEG7ScalableColor dominant1 = new MPEG7ScalableColor(img1);
+//        MPEG7ScalableColor dominant2 = new MPEG7ScalableColor(img3);
+        //System.out.println(dominant1.compare(dominant2));
         //imagen1.add(Desc2);
         //double Dif = 0.0;
         //Dif = imagen1.compare(imagen2);
         
-        //DescriptorLista.ComparatorHist c  = new DescriptorLista.ComparatorHist();
-        //imagen1.setComparator(c);
-        //Dif = imagen1.compare(imagen2);
-        
+//        DescriptorList lista1 = new DescriptorList(img1);
+//        lista1.add(singledescriptor1);
+//        lista1.add(dominant1);
+//        
+//        DescriptorList lista2 = new DescriptorList(img3);
+//        lista2.add(singledescriptor2);
+//        lista2.add(dominant2);
         
         //System.out.println(imagen1.getEtiqueta());
         //System.out.println(imagen2.getEtiqueta());
         //System.out.println(Dif);
         
-        LabelProperties Desc1 = new LabelProperties(img1,SingleColorDescriptor.class,jmr.descriptor.color.MPEG7ScalableColor.class);
-        System.out.println(Desc1.toString());
-        LabelProperties Desc2 = new LabelProperties(img2,SingleColorDescriptor.class);
-        System.out.println(Desc2.toString());
-        Desc1.compare(Desc2);
+//        LabelProperties Desc1 = new LabelProperties(img1,SingleColorDescriptor.class,jmr.descriptor.color.MPEG7ScalableColor.class);
+//        System.out.println(Desc1.toString());
         
         
         
+        
+        
+        LabelProperties Desc1 = new LabelProperties(img2); Desc1.addProperty(SingleColorDescriptor.class);
+        LabelProperties Desc2 = new LabelProperties(img3); Desc2.addProperty(SingleColorDescriptor.class);
+        
+        System.out.println(Desc1);
+        System.out.println(Desc2);
+        double dist = Desc1.compare(Desc2);
+        
+        System.out.println(dist);
+//        Desc1.compare(Desc2);
+//        Desc2.compare()
+        
+        
+//        
+//        MPEG7ScalableColor Desc1 = new MPEG7ScalableColor(img2);
+//        System.out.println(Desc1.toString());
+//        MPEG7ScalableColor Desc2 = new MPEG7ScalableColor(img3);
+//        System.out.println(Desc2.toString());
+//        System.out.println(Desc1.compare(Desc2).toString());
         /*
-        SingleColorDescriptor Desc1 = new SingleColorDescriptor(img1);
-        System.out.println(Desc1.toString());
-        SingleColorDescriptor Desc2 = new SingleColorDescriptor(img2);
-        System.out.println(Desc2.toString());
-        System.out.println(Desc1.compare(Desc2).toString());
         System.out.println("--------------------------------------------------");
         //MPEG7DominantColors Desc3 = new MPEG7DominantColors(img1);
         //System.out.println(Desc3.getNumberOfDominantColors());
