@@ -55,67 +55,67 @@ public class PruebasJMR {
         BufferedImage img4 = null;
         BufferedImage img5 = null;
         
-//        try{
-//        File sourceImage = new File ("C:/Users/Fernando/Dropbox/Apuntes/TFG/Imagenes/"
-//            + Integer.toString(68) + ".jpg");
-//        img1 = ImageIO.read(sourceImage);
-//        } catch (IOException e){
-//            e.printStackTrace();
-//        }
-//        
-//        try{
-//        File sourceImage = new File ("C:/Users/Fernando/Dropbox/Apuntes/TFG/Imagenes/"
-//            + Integer.toString(6) + ".jpg");
-//        img2 = ImageIO.read(sourceImage);
-//        } catch (IOException e){
-//            e.printStackTrace();
-//        }
-//        
-//        try{
-//        File sourceImage = new File ("C:/Users/Fernando/Dropbox/Apuntes/TFG/Imagenes/"
-//            + Integer.toString(15) + ".jpg");
-//        img3 = ImageIO.read(sourceImage);
-//        } catch (IOException e){
-//            e.printStackTrace();
-//        }
-        
-        
         try{
-        File sourceImage = new File ("D:/Dropbox/Apuntes/TFG/Imagenes/blanco.png");
-        img4 = ImageIO.read(sourceImage);
-        } catch (IOException e){
-            e.printStackTrace();
-        }
-        try{
-        File sourceImage = new File ("D:/Dropbox/Apuntes/TFG/Imagenes/negro.jpg");
-        img5 = ImageIO.read(sourceImage);
-        } catch (IOException e){
-            e.printStackTrace();
-        }
-        try{
-        File sourceImage = new File ("D:/ImagenesTFG/Data/CLS-LOC/train/n03134739/"
-            + "n03134739_438.JPEG");
+        File sourceImage = new File ("C:/Users/Fernando/Dropbox/Apuntes/TFG/Imagenes/"
+            + Integer.toString(68) + ".jpg");
         img1 = ImageIO.read(sourceImage);
         } catch (IOException e){
             e.printStackTrace();
         }
         
         try{
-        File sourceImage = new File ("D:/Dropbox/Apuntes/TFG/Imagenes/"
-           + "Alemania.jpg");
+        File sourceImage = new File ("C:/Users/Fernando/Dropbox/Apuntes/TFG/Imagenes/"
+            + Integer.toString(6) + ".jpg");
         img2 = ImageIO.read(sourceImage);
-        
         } catch (IOException e){
             e.printStackTrace();
         }
         
         try{
-        File sourceImage = new File ("D:/Dropbox/Apuntes/TFG/Imagenes/" +
-            "Belgica.jpg");
+        File sourceImage = new File ("C:/Users/Fernando/Dropbox/Apuntes/TFG/Imagenes/"
+            + Integer.toString(15) + ".jpg");
         img3 = ImageIO.read(sourceImage);
         } catch (IOException e){
             e.printStackTrace();
         }
+        
+        
+//        try{
+//        File sourceImage = new File ("D:/Dropbox/Apuntes/TFG/Imagenes/blanco.png");
+//        img4 = ImageIO.read(sourceImage);
+//        } catch (IOException e){
+//            e.printStackTrace();
+//        }
+//        try{
+//        File sourceImage = new File ("D:/Dropbox/Apuntes/TFG/Imagenes/negro.jpg");
+//        img5 = ImageIO.read(sourceImage);
+//        } catch (IOException e){
+//            e.printStackTrace();
+//        }
+//        try{
+//        File sourceImage = new File ("D:/ImagenesTFG/Data/CLS-LOC/train/n03134739/"
+//            + "n03134739_438.JPEG");
+//        img1 = ImageIO.read(sourceImage);
+//        } catch (IOException e){
+//            e.printStackTrace();
+//        }
+//        
+//        try{
+//        File sourceImage = new File ("D:/Dropbox/Apuntes/TFG/Imagenes/"
+//           + "Alemania.jpg");
+//        img2 = ImageIO.read(sourceImage);
+//        
+//        } catch (IOException e){
+//            e.printStackTrace();
+//        }
+//        
+//        try{
+//        File sourceImage = new File ("D:/Dropbox/Apuntes/TFG/Imagenes/" +
+//            "Belgica.jpg");
+//        img3 = ImageIO.read(sourceImage);
+//        } catch (IOException e){
+//            e.printStackTrace();
+//        }
         
         //LabelDescriptor etiq = new LabelDescriptor(img1);
         
