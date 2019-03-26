@@ -104,6 +104,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     /**
      * Initialize and calculate all the properties of the descriptor
      */
+    
     private void initProperties(){
         MediaDescriptor descriptor;
         this.properties = new DescriptorList(this.source);
@@ -113,13 +114,10 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
         }
     }
     
-    public static boolean setDefaultProperties(Class<? extends MediaDescriptor>... classProperties){
+    public static void setDefaultProperties(Class<? extends MediaDescriptor>... classProperties){
         if(classProperties != null){
             DefaultProperties = classProperties;
-            return true;
         }
-        else 
-            return false;
     }
     
      public void setWeightComparator(){
@@ -192,13 +190,13 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
                                             * 0.15;
                             dist +=distProperty;
                         }
-                        else if(t.getProperty(i).getClass() == jmr.descriptor.color.MPEG7ColorStructure.class){
+                        else if(t.getProperty(i).getClass().equals(jmr.descriptor.color.MPEG7ColorStructure.class) ){
                             distProperty = (double) t.getProperty(i).compare(u.getProperty(j));                    //en el caso de DominantColor le asigno mas peso 
                             distProperty = (distProperty*5)//El valor maximo ronda los 0.2 
                                             * 0.35;// le asigno el peso
                             dist += distProperty;
                         }
-                        else if (t.getProperty(i).getClass() == jmr.descriptor.color.MPEG7ScalableColor.class){
+                        else if (t.getProperty(i).getClass().equals(jmr.descriptor.color.MPEG7ScalableColor.class)){
                             distProperty = (double) t.getProperty(i).compare(u.getProperty(j));
                             if(distProperty > 700)
                                 distProperty = 700;
@@ -233,6 +231,62 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
 
         }
     }
+    
+    static class PropertiesComparator implements Comparator <LabelProperties, Double> {
+        
+        private double normalizeProperties(LabelProperties t, LabelProperties u){
+            double dist = 0.0;
+            double distProperty = 0.0;                                                //distancia de una propiedad concreta
+            for (int i=0 ; i < t.properties.size(); i++){                   //Itero sobre ella buscando cuales son las propiedades en comun con la otra lista
+                for (int j=0; j < u.properties.size(); j++){
+                    if(t.getProperty(i).getClass().equals(u.getProperty(j).getClass())){       //Busco si los nombres de las propiedades coinciden
+                        if(t.getProperty(i).getClass() == jmr.descriptor.color.SingleColorDescriptor.class){ //Si coinciden, compruebo que propiedad es, 
+                            distProperty = (double) t.getProperty(i).compare(u.getProperty(j));                    //en el caso de singlecolor le asigno poco peso poco peso 
+                            if(distProperty > 400) //Le asigno el valor maximo para la normalización
+                                distProperty = 400;
+                            distProperty = (distProperty/400)
+                                            * 0.15;
+                            dist +=distProperty;
+                        }
+                        else if(t.getProperty(i).getClass().equals(jmr.descriptor.color.MPEG7ColorStructure.class) ){
+                            distProperty = (double) t.getProperty(i).compare(u.getProperty(j));                    //en el caso de DominantColor le asigno mas peso 
+                            distProperty = (distProperty*5)//El valor maximo ronda los 0.2 
+                                            * 0.35;// le asigno el peso
+                            dist += distProperty;
+                        }
+                        else if (t.getProperty(i).getClass().equals(jmr.descriptor.color.MPEG7ScalableColor.class)){
+                            distProperty = (double) t.getProperty(i).compare(u.getProperty(j));
+                            if(distProperty > 700)
+                                distProperty = 700;
+                            distProperty = (distProperty/700)
+                                            * 0.5;
+                            dist +=distProperty;
+                        }
+//                          else {                                              Si no es un descriptor de esos 3 no hace nada, hay que darle mas vueltas
+//                          
+//                        
+//                            }
+                    }
+                }
+            }
+            return dist;
+        }
+
+        /**
+         * @param t
+         * @param u
+         * @return 
+         */
+        @Override
+        public Double apply(LabelProperties t, LabelProperties u){
+            double distProperties = normalizeProperties(t,u);
+            
+            return distProperties;
+
+        }
+    }
+    
+    
 }
     
     
