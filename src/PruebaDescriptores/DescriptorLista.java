@@ -1,34 +1,33 @@
-package FernanDescriptors;
+package PruebaDescriptores;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import jmr.descriptor.Comparator;
 import jmr.descriptor.MediaDescriptorAdapter;
-import jmr.descriptor.MediaDescriptor;
 import jmr.descriptor.DescriptorList;
 import jmr.descriptor.label.LabelDescriptor;
 import jmr.descriptor.color.MPEG7ScalableColor;
-import java.util.ArrayList;
+
 /**
  *
  * @author Fernando Roldán Zafra
  */
-public class MiListaDescriptores extends MediaDescriptorAdapter <BufferedImage> implements Serializable{
-    ArrayList <MediaDescriptor> lista;
-    public MiListaDescriptores (BufferedImage image){
+public class DescriptorLista extends MediaDescriptorAdapter <BufferedImage> implements Serializable{
+    DescriptorList lista;
+
+    public DescriptorLista (BufferedImage image){
         super(image, new DefaultComparator());
         
     }
     
-    public MiListaDescriptores (LabelDescriptor etiq, BufferedImage image){
+    public DescriptorLista (LabelDescriptor etiq, BufferedImage image){
         super(image, new DefaultComparator());
         this.lista.set(0, etiq);
     }
     
-    
     @Override
     public void init(BufferedImage image){
-        this.lista = new ArrayList<MediaDescriptor>();
+        this.lista = new DescriptorList(image);
         
         LabelDescriptor etiq = new LabelDescriptor(image);
         lista.add(etiq);
@@ -51,10 +50,10 @@ public class MiListaDescriptores extends MediaDescriptorAdapter <BufferedImage> 
         return "DescriptorLista: [" + lista.get(0).toString() + " " + lista.get(1).toString() + "]";
     }
     
-    static class DefaultComparator implements Comparator <MiListaDescriptores, Double> {
+    static class DefaultComparator implements Comparator <DescriptorLista, Double> {
     
         @Override
-        public Double apply(MiListaDescriptores t, MiListaDescriptores u){
+        public Double apply(DescriptorLista t, DescriptorLista u){
             LabelDescriptor etiq1 = t.getEtiqueta();
             LabelDescriptor etiq2 = u.getEtiqueta();
 
@@ -63,11 +62,8 @@ public class MiListaDescriptores extends MediaDescriptorAdapter <BufferedImage> 
             
             double Dif;
 
-            if(etiq1.equals(etiq2)){
-                System.out.println(etiq1);
-                System.out.println(etiq2);
+            if(etiq1 != etiq2)
                 Dif = Double.POSITIVE_INFINITY;
-            }
             else
                 Dif = hist1.compare(hist2);
             
@@ -75,10 +71,10 @@ public class MiListaDescriptores extends MediaDescriptorAdapter <BufferedImage> 
         }
     }
 
-    static class ComparatorHist implements Comparator <MiListaDescriptores, Double> {
+    static public class ComparatorHist implements Comparator <DescriptorLista, Double> {
     
         @Override
-        public Double apply(MiListaDescriptores t, MiListaDescriptores u){
+        public Double apply(DescriptorLista t, DescriptorLista u){
             MPEG7ScalableColor hist1 = t.getHistograma();
             MPEG7ScalableColor hist2 = u.getHistograma();
             
@@ -90,10 +86,10 @@ public class MiListaDescriptores extends MediaDescriptorAdapter <BufferedImage> 
         }
     }
     
-    static class ComparatorEtiq implements Comparator <MiListaDescriptores, Double> {
+    static class ComparatorEtiq implements Comparator <DescriptorLista, Double> {
     
         @Override
-        public Double apply(MiListaDescriptores t, MiListaDescriptores u){
+        public Double apply(DescriptorLista t, DescriptorLista u){
             LabelDescriptor etiq1 = t.getEtiqueta();
             LabelDescriptor etiq2 = u.getEtiqueta();
             
@@ -107,4 +103,5 @@ public class MiListaDescriptores extends MediaDescriptorAdapter <BufferedImage> 
             return Dif;
         }
     }
+    
 }

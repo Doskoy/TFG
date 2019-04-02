@@ -1,42 +1,35 @@
-package FernanDescriptors;
+package PruebaDescriptores;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import jmr.descriptor.Comparator;
-import jmr.descriptor.MediaDescriptorAdapter;
+import jmr.descriptor.MediaDescriptor;
 /**
- * Descriptor which represents the mean grey Scale Color for a given image
+ *
  * @author Fernando Roldán Zafra
  */
-public class GreyScaleDescriptor extends MediaDescriptorAdapter <BufferedImage> implements Serializable{
-    
-    /**
-     * The mean grey scale color of the image 
-     * 
-     */
+public class GreyScaleMediaDescriptor implements MediaDescriptor<BufferedImage>, Serializable {
     public Color color;
+    private transient BufferedImage source = null;
     
-    /**
-     * 
-     */
-    
-    public GreyScaleDescriptor(BufferedImage image){
-        super(image, new DefaultComparator());
-    }
-    
-    /**
-     * 
-     */
-    
-    public GreyScaleDescriptor(Color color){
-        super (null, new DefaultComparator());
+    public GreyScaleMediaDescriptor(Color color){
         this.color = color;
     }
     
-    /**
-     * 
-     * 
-     */
+    public GreyScaleMediaDescriptor(BufferedImage image){
+        setSource(image);
+    }
+    
+    @Override
+    final public void setSource(BufferedImage image){
+        this.source = image;
+        init(image);
+    }
+    
+    @Override
+    final public BufferedImage getSource(){
+        return this.source;
+    }
     
     @Override
     public void init(BufferedImage image){
@@ -76,20 +69,20 @@ public class GreyScaleDescriptor extends MediaDescriptorAdapter <BufferedImage> 
     
     @Override
     public String toString(){
-        return "GrayScaleDescriptor: [" + (color.getRed()/255.0)+"]";
+        return "GrayScaleMediaDescriptor: [" + (color.getRed()/255.0)+"]";
     }
     
-    static class DefaultComparator implements Comparator <GreyScaleDescriptor, Double> {
-        @Override
-        public Double apply(GreyScaleDescriptor t, GreyScaleDescriptor u){
-            Color c1 = t.color, c2 = u.color;
-            double Dif = c1.getRed()-c2.getRed();
-            return Dif;
-        
-        }
-    
+    @Override
+    public Double compare(MediaDescriptor mediaDescriptor){
+        if(!(mediaDescriptor instanceof GreyScaleMediaDescriptor))
+            return(null);
+        return (compare((GreyScaleMediaDescriptor) mediaDescriptor));
     }
+    
+    public Double compare(GreyScaleMediaDescriptor t, GreyScaleMediaDescriptor u){
+        Color c1 = t.color, c2 = u.color;
+        double Dif = c1.getRed()-c2.getRed();
+        return Dif;
 
-
-
+    }
 }
