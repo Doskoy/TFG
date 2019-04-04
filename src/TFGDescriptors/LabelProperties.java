@@ -177,10 +177,6 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
         return properties.size();
     }
     
-    
-    
-    
-    
     @Override
     public String toString(){
         return (this.label.toString() + "\n" + this.properties.toString());
