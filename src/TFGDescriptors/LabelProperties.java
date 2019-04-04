@@ -2,12 +2,13 @@ package TFGDescriptors;
 
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import jmr.descriptor.MediaDescriptorAdapter;
 import jmr.descriptor.MediaDescriptor;
 import jmr.descriptor.Comparator;
-import jmrModified.DescriptorList;
+import jmr.descriptor.DescriptorList;
 import jmr.descriptor.MediaDescriptorFactory;
 
 import jmr.descriptor.color.MPEG7ColorStructure;
@@ -15,7 +16,6 @@ import jmr.descriptor.color.MPEG7ScalableColor;
 import jmr.descriptor.label.Classifier;
 import jmr.descriptor.label.LabelDescriptor;
 import jmr.descriptor.label.LabelDescriptor.WeightBasedComparator;
-import jmrModified.DescriptorList.WeightedComparator;
 import jmr.descriptor.label.LabelDescriptor.EqualComparator;
 import jmr.descriptor.label.LabelDescriptor.SoftEqualComparator;
 import jmr.descriptor.label.LabeledClassification;
@@ -279,4 +279,96 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
             return dist;
         }
     }
+    
+    public static class WeightedComparator implements Comparator <DescriptorList, Double> {
+        private double weights[] = null;
+        public WeightedComparator(double... weights){
+            if(weights != null)
+                this.weights = weights;
+        }
+
+        @Override
+        public Double apply(DescriptorList t, DescriptorList u){
+            if(weights != null){
+                if(weights.length != t.size()){
+                    throw new InvalidParameterException("They must be the same number of weights than descriptors");
+                }
+            }
+            
+            
+            if(this.weights != null){
+                double sum = 0;
+                for(int i = 0; i < this.weights.length; i++)
+                    sum += weights[i];
+
+                if (sum != 1)
+                    throw new InvalidParameterException("The sum of weights must be 1");
+            }
+            
+            double dist = 0.0;
+            double distProperty = 0.0;                                                              //distancia de una propiedad concreta
+            int numDescriptors = 0;
+            
+            for (int i=0 ; i < t.size(); i++){                                                      //Itero sobre ella buscando cuales son las propiedades en comun con la otra lista
+                for (int j=0; j < u.size(); j++){
+                    if(t.get(i).getClass().equals(u.get(j).getClass())){                            //Busco si los nombres de las propiedades coinciden
+                        numDescriptors++;
+                        if(t.get(i).getClass() == jmr.descriptor.color.SingleColorDescriptor.class){ //Si coinciden, compruebo que propiedad es, 
+                            distProperty = (double) t.get(i).compare(u.get(j));                     //en el caso de singlecolor le asigno poco peso poco peso 
+                            if(distProperty > 120)                                                  //Le asigno el valor maximo para la normalización
+                                distProperty = 120;
+                            if(weights != null){
+                                distProperty = (1-(120-distProperty)/120)
+                                                * this.weights[i];
+                            }else{
+                                distProperty = (1-(120-distProperty)/120)
+                                                * 0.15;
+                            }
+                            dist +=distProperty;
+                        }
+                        else if(t.get(i).getClass().equals(jmr.descriptor.color.MPEG7ColorStructure.class) ){
+                            distProperty = (double) t.get(i).compare(u.get(j));                     //en el caso de DominantColor le asigno mas peso 
+                            if(weights != null){
+                                distProperty = (distProperty*5)                                     //El valor maximo ronda los 0.2 
+                                            * this.weights[i];                                      // le asigno el peso
+                            }else{
+                                distProperty = (distProperty*5)                                     //El valor maximo ronda los 0.2 
+                                            * 0.35;                                                 // le asigno el peso
+                            }
+                            dist += distProperty;
+                        }
+                        else if (t.get(i).getClass().equals(jmr.descriptor.color.MPEG7ScalableColor.class)){
+                            distProperty = (double) t.get(i).compare(u.get(j));
+                            if(distProperty > 400)
+                                distProperty = 400;
+
+                            if(weights != null){
+                                distProperty = (1-(400-distProperty)/400)
+                                            * this.weights[i];
+                            }else{
+                                distProperty = (1-(400-distProperty)/400)
+                                            * 0.5;
+                            }
+
+                            dist +=distProperty;
+                        }
+                        else {
+                            distProperty = (double) t.get(i).compare(u.get(j));
+                            if (distProperty >1)
+                                throw new InvalidParameterException("Can not compare descriptor at pos " + i + ", distance must be in the interval [0,1]");
+                            else
+                                distProperty = distProperty*this.weights[i];
+                            dist +=distProperty;
+
+                        }
+                    }
+                }
+            }
+            if(numDescriptors != t.size())
+                throw new InvalidParameterException("Descriptors in both lists must be equals");
+            else
+                return dist;
+        }
+    }
+
 }
