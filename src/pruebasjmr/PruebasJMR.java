@@ -54,9 +54,7 @@ public class PruebasJMR {
                 }
             }
     }
-    public static void func1(double pesos[],double... weights){
-            pesos = weights;
-        }
+
     public static void main(String[] args) throws Exception {
         //changeNameFiles();
        
@@ -130,7 +128,7 @@ public class PruebasJMR {
         
         File sourceCnn = new File("D:/Dropbox/Apuntes/TFG/cnn.vgg16/cnn.vgg16.xml");
         
-                                            //KerasClassifier clasificador = KerasClassifier.loadModel(sourceCnn);
+        KerasClassifier clasificador = KerasClassifier.loadModel(sourceCnn);
         
         //LabelDescriptor etiq = new LabelDescriptor(img1);
         
@@ -176,16 +174,18 @@ public class PruebasJMR {
 //        System.out.println(" -> "+ Desc1.compare(Desc2));
         
         
-//        
-                                                                LabelProperties Desc1 = new LabelProperties(img2); Desc1.addProperty(SingleColorDescriptor.class);
-                                                                LabelProperties Desc2 = new LabelProperties(img3); Desc2.addProperty(SingleColorDescriptor.class);
-                                                                
-                                                                
-//                                                                WeightedLabelComparator c = new WeightedLabelComparator();
-//                                                                Desc1.setComparator(c);
-                                                                
-                                                                //double dist = (double) Desc1.compare(Desc2);
-                                                                //System.out.println(dist);
+                                clasificador.setWeighted(true);
+                                clasificador.setThreshold(0.15);
+                                LabelProperties Desc1 = new LabelProperties(img1, clasificador); Desc1.addProperty(SingleColorDescriptor.class);
+                                System.out.println(Desc1);
+//LabelProperties Desc2 = new LabelProperties(img3); Desc2.addProperty(SingleColorDescriptor.class);
+
+
+//                                SoftInclusionComparator c = new SoftInclusionComparator();
+//                                Desc1.setComparator(c);
+
+//                                double dist = (double) Desc1.compare(Desc2);
+//                                System.out.println(dist);
 //        Desc1.compare(Desc2);
 //        Desc2.compare()
     }
