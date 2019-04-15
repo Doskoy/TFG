@@ -127,31 +127,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
             DefaultProperties = classProperties;
         }
     }
-    
-    public void setWeightComparator(){
-        if(this.label.isWeighted()){
-            WeightBasedComparator comparator = new WeightBasedComparator();
-            this.label.setComparator(comparator);
-        }else
-            System.out.println("Invalid operation, you can´t set a weightBasedComparator to a non-weight descriptor");
-    }
-    
-    public void setWeightComparator(int type){
-        if(this.label.isWeighted()){
-            WeightBasedComparator comparator = new WeightBasedComparator(type);
-            this.label.setComparator(comparator);
-        }else
-            System.out.println("Invalid operation, you can´t set a weightBasedComparator to a non-weight descriptor");
-    }
-    
-    public void setWeightComparator(int type, boolean only_inclusion){
-        if(this.label.isWeighted()){
-            WeightBasedComparator comparator = new WeightBasedComparator(type,only_inclusion);
-            this.label.setComparator(comparator);
-        }else
-            System.out.println("Invalid operation, you can´t set a weightBasedComparator to a non-weight descriptor");
-    }
-    
+
     public void setClassifier(Classifier classifier){
         this.label.setClassifier(classifier);
     }
@@ -279,7 +255,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     public static class WeightedComparator implements Comparator <DescriptorList, Double> {
         private double weights[] = null;
         public WeightedComparator(double... weights){
-            if(weights != null)
+            if(weights.length != 0)
                 this.weights = weights;
         }
 
@@ -287,6 +263,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
         public Double apply(DescriptorList t, DescriptorList u){
             if(weights != null){
                 if(weights.length != t.size()){
+                    System.out.println(weights.length + " \n" + t.size());
                     throw new InvalidParameterException("They must be the same number of weights than descriptors");
                 }
             }
