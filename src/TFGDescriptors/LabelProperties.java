@@ -161,7 +161,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     public String toString(){
         return (this.label.toString() + "\n" + this.properties.toString());
     }
-    
+
     static class DefaultComparator implements Comparator <LabelProperties, Double> {
         @Override
         public Double apply(LabelProperties t, LabelProperties u){
@@ -204,6 +204,9 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
         
         @Override
         public Double apply(LabelProperties t, LabelProperties u){
+            if (!t.label.isWeighted() || !u.label.isWeighted()){
+                throw new InvalidParameterException("Labels must be weighted!!");
+            }else{
             WeightedComparator c = new WeightedComparator(this.PropertyWeights);
             t.properties.setComparator(c);
             
@@ -212,6 +215,8 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
             double dist = (double) t.label.compare(u.label);
             dist += (double) t.properties.compare(u.properties);
             return dist;
+            }
+            
         }
     }
     
@@ -244,19 +249,54 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
      * Si las etiquetas son iguales compara las propiedades, si no no
      */
     static public class EqualLabelsComparator implements Comparator <LabelProperties, Double>{
+        double weights[] = null;
+        public EqualLabelsComparator(double... weights){
+            if(weights.length != 0)
+                this.weights = weights;
+        }
+        
         @Override
         public Double apply(LabelProperties t, LabelProperties u){
             EqualComparator c = new EqualComparator();
             t.label.setComparator(c);
             double dist = (double) t.label.compare(u.label);
             if(dist == 0){
+                WeightedComparator comp = new WeightedComparator(weights);
+                t.properties.setComparator(comp);
                 dist = (double) t.properties.compare(u.properties);
+            }else{
+                dist = 1.0;
             }
+                
             return dist;
         }
     }
     
-    public static class WeightedComparator implements Comparator <DescriptorList, Double> {
+    static public class SoftEqualLabelsComparator implements Comparator <LabelProperties, Double>{
+        double weights[] = null;
+        public SoftEqualLabelsComparator(double... weights){
+            if(weights.length != 0)
+                this.weights = weights;
+        }
+        
+        @Override
+        public Double apply(LabelProperties t, LabelProperties u){
+            SoftEqualComparator c = new SoftEqualComparator();
+            t.label.setComparator(c);
+            double dist = (double) t.label.compare(u.label);
+            if(dist == 0){
+                WeightedComparator comp = new WeightedComparator(weights);
+                t.properties.setComparator(comp);
+                dist = (double) t.properties.compare(u.properties);
+            }else{
+                dist = 1.0;
+            }
+            
+            return dist;
+        }
+    }
+    
+    private static class WeightedComparator implements Comparator <DescriptorList, Double> {
         private double weights[] = null;
         public WeightedComparator(double... weights){
             if(weights.length != 0)
@@ -267,7 +307,6 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
         public Double apply(DescriptorList t, DescriptorList u){
             if(weights != null){
                 if(weights.length != t.size()){
-                    System.out.println(weights.length + " \n" + t.size());
                     throw new InvalidParameterException("They must be the same number of weights than descriptors");
                 }
             }
