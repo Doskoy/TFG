@@ -132,7 +132,6 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
         this.label.setClassifier(classifier);
     }
     
-    
     public LabelDescriptor getLabel(){
         return label;
     } 
@@ -268,10 +267,15 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
             
             if(dist == 0){
                 WeightedComparator comp = null;
+                if(this.weights == null){
+                    comp = new WeightedComparator();
+                }else{
+                    comp = new WeightedComparator(weights);
+                }
                 t.properties.setComparator(comp);
                 dist = (double) t.properties.compare(u.properties);
             }else{
-                dist = 1.0;
+                dist = Double.POSITIVE_INFINITY;
             }
                 
             return dist;
@@ -300,11 +304,44 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
                 t.properties.setComparator(comp);
                 dist = (double) t.properties.compare(u.properties);
             }else{
-                dist = 1.0;
+                dist = Double.POSITIVE_INFINITY;
             }
             
             return dist;
         }
+    }
+    
+    /**
+     * If both comparators have any common label, it compare the properties otherwise 
+     * it returns 1
+     * @param weights Weights that are going to be used to compare the properties
+     * @return 1 if there'nt any common label, 0 if they have a common label
+     */
+    static public class SoftInclusionComparator implements Comparator <LabelProperties, Double>{
+        double weights[] = null;
+        
+        public SoftInclusionComparator(double... weights){
+            if(weights.length != 0)
+                this.weights = weights;
+        }
+        @Override
+        public Double apply(LabelProperties t, LabelProperties u){
+            double dist = 0.0;
+            if(t.label.isSoftIncluded(u.label)){
+                WeightedComparator c = null;
+                if(this.weights == null){
+                    c = new WeightedComparator();
+                }else{
+                    c = new WeightedComparator(weights);
+                }
+                t.properties.setComparator(c);
+                dist = (double) t.properties.compare(u.properties);
+            }else
+                dist = Double.POSITIVE_INFINITY;
+            return dist;
+        
+        }
+    
     }
     
     private static class WeightedComparator implements Comparator <DescriptorList, Double> {
@@ -397,39 +434,4 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
                 return dist;
         }
     }
-
-    
-    /**
-     * If both comparators have any common label, it compare the properties otherwise 
-     * it returns 1
-     * @param weights Weights that are going to be used to compare the properties
-     * @return 1 if there'nt any common label, 0 if they have a common label
-     */
-    static public class SoftInclusionComparator implements Comparator <LabelProperties, Double>{
-        double weights[] = null;
-        
-        public SoftInclusionComparator(double... weights){
-            if(weights.length != 0)
-                this.weights = weights;
-        }
-        @Override
-        public Double apply(LabelProperties t, LabelProperties u){
-            double dist = 0.0;
-            if(t.label.isSoftIncluded(u.label)){
-                WeightedComparator c = null;
-                if(this.weights == null){
-                    c = new WeightedComparator();
-                }else{
-                    c = new WeightedComparator(weights);
-                }
-                t.properties.setComparator(c);
-                dist = (double) t.properties.compare(u.properties);
-            }else
-                dist = 1;
-            return dist;
-        
-        }
-    
-    }
-    
 }
