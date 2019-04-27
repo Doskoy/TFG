@@ -3,8 +3,6 @@ package TFGDescriptors;
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.security.InvalidParameterException;
-import java.util.ArrayList;
-import java.util.List;
 import jmr.descriptor.MediaDescriptorAdapter;
 import jmr.descriptor.MediaDescriptor;
 import jmr.descriptor.Comparator;
@@ -317,10 +315,10 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
      * @param weights Weights that are going to be used to compare the properties
      * @return 1 if there'nt any common label, 0 if they have a common label
      */
-    static public class SoftInclusionComparator implements Comparator <LabelProperties, Double>{
+    static public class SoftEqualComparator implements Comparator <LabelProperties, Double>{
         double weights[] = null;
         
-        public SoftInclusionComparator(double... weights){
+        public SoftEqualComparator(double... weights){
             if(weights.length != 0)
                 this.weights = weights;
         }
