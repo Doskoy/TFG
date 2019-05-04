@@ -167,10 +167,8 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
             double distProperties = (double) t.properties.compare(u.properties);
             double dist = distProperties;
             
-            SoftEqualComparator comp = new SoftEqualComparator();
-            t.label.setComparator(comp);
             dist += (double) t.label.compare(u.label);
-            
+            System.out.println("Hola?");
             return dist;
 
         }
