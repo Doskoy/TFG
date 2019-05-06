@@ -51,7 +51,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     private static Comparator DEFAULT_COMPARATOR = new DefaultComparator();
     
     public LabelProperties (BufferedImage image){
-        super(image, new DefaultComparator());
+        super(image, DEFAULT_COMPARATOR);
         this.classProperties = DefaultProperties;
         this.init(image);
     }
@@ -63,20 +63,20 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
      * undeterminate types
      */
     public LabelProperties (BufferedImage image, Class<? extends MediaDescriptor>... classProperties){
-        super(image, new DefaultComparator());
+        super(image, DEFAULT_COMPARATOR);
         this.classProperties = classProperties;
         this.init(image);
     }
     
     public LabelProperties (BufferedImage image, Classifier<BufferedImage,? extends LabeledClassification> classifier){
-        super(image, new DefaultComparator());
+        super(image, DEFAULT_COMPARATOR);
         this.classProperties = DefaultProperties;
         this.classifier = classifier;
         this.init(image);
     }
    
     public LabelProperties (BufferedImage image, Classifier<BufferedImage,? extends LabeledClassification> classifier, Class<? extends MediaDescriptor>... classProperties ){
-        super(image, new DefaultComparator());
+        super(image, DEFAULT_COMPARATOR);
         this.classProperties = classProperties;
         this.classifier = classifier;
         this.init(image);
@@ -180,20 +180,20 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
         boolean only_inclusion = false;
 
         public WeightedLabelComparator (int type, boolean only_inclusion, double... weights){
-            if(weights.length != 0)
+            if(weights != null)
                 this.PropertyWeights = weights;
             this.type = type;
             this.only_inclusion = only_inclusion;
         }
         
         public WeightedLabelComparator (int type, double... weights){
-            if(weights.length != 0)
+            if(weights != null)
                 this.PropertyWeights = weights;
             this.type = type;
         }
         
         public WeightedLabelComparator (double... weights){
-            if(weights.length != 0)
+            if(weights != null)
                 this.PropertyWeights = weights;
         }
         
@@ -223,7 +223,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     static public class WeightedPropertiesComparator implements Comparator <LabelProperties, Double>{
         double weights[] = null;
         public WeightedPropertiesComparator(double... weights){
-            if(weights.length != 0)
+            if(weights != null)
                 this.weights = weights;
         }
         @Override
@@ -251,7 +251,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     static public class EqualLabelsComparator implements Comparator <LabelProperties, Double>{
         double weights[] = null;
         public EqualLabelsComparator(double... weights){
-            if(weights.length != 0)
+            if(weights != null)
                 this.weights = weights;
         }
         
@@ -281,7 +281,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     static public class SoftEqualLabelsComparator implements Comparator <LabelProperties, Double>{
         double weights[] = null;
         public SoftEqualLabelsComparator(double... weights){
-            if(weights.length != 0)
+            if(weights != null)
                 this.weights = weights;
         }
         
@@ -317,7 +317,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
         double weights[] = null;
         
         public SoftEqualComparator(double... weights){
-            if(weights.length != 0)
+            if(weights != null)
                 this.weights = weights;
         }
         @Override
@@ -343,7 +343,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     private static class WeightedComparator implements Comparator <DescriptorList, Double> {
         private double weights[] = null;
         public WeightedComparator(double... weights){
-            if(weights.length != 0)
+            if(weights != null)
                 this.weights = weights;
         }
 
