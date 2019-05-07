@@ -96,7 +96,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
             }
             
             this.properties = new DescriptorList(this.source);
-            WeightedComparator c = new WeightedComparator();
+            WeightedPropertiesComparator c = new WeightedPropertiesComparator();
             properties.setComparator(c);
             
             this.initProperties();
@@ -162,7 +162,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     static class DefaultComparator implements Comparator <LabelProperties, Double> {
         @Override
         public Double apply(LabelProperties t, LabelProperties u){
-            WeightedComparator c = new WeightedComparator();
+            WeightedPropertiesComparator c = new WeightedPropertiesComparator();
             t.properties.setComparator(c);
             double distProperties = (double) t.properties.compare(u.properties);
             double dist = distProperties;
@@ -202,7 +202,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
             if (!t.label.isWeighted() || !u.label.isWeighted()){
                 throw new InvalidParameterException("Labels must be weighted!!");
             }else{
-            WeightedComparator c = new WeightedComparator(this.PropertyWeights);
+            WeightedPropertiesComparator c = new WeightedPropertiesComparator(this.PropertyWeights);
             t.properties.setComparator(c);
             
             WeightBasedComparator comp = new WeightBasedComparator(type, only_inclusion);
@@ -220,6 +220,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
      * (Si alguna etiqueta esta incluida en el otro descriptor devuelve 0, si no 1)
      * 
      */
+    /*
     static public class WeightedPropertiesComparator implements Comparator <LabelProperties, Double>{
         double weights[] = null;
         public WeightedPropertiesComparator(double... weights){
@@ -228,11 +229,11 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
         }
         @Override
         public Double apply(LabelProperties t, LabelProperties u){
-            WeightedComparator c = null;
+            WeightedPropertiesComparator c = null;
             if(this.weights == null){
-                c = new WeightedComparator();
+                c = new WeightedPropertiesComparator();
             }else{
-                c = new WeightedComparator(weights);
+                c = new WeightedPropertiesComparator(weights);
             }
             t.properties.setComparator(c);
             
@@ -244,7 +245,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
         }
 
     }
-    
+    */
     /**
      * Si las etiquetas son iguales compara las propiedades, si no no
      */
@@ -262,11 +263,11 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
             double dist = (double) t.label.compare(u.label);
             
             if(dist == 0){
-                WeightedComparator comp = null;
+                WeightedPropertiesComparator comp = null;
                 if(this.weights == null){
-                    comp = new WeightedComparator();
+                    comp = new WeightedPropertiesComparator();
                 }else{
-                    comp = new WeightedComparator(weights);
+                    comp = new WeightedPropertiesComparator(weights);
                 }
                 t.properties.setComparator(comp);
                 dist = (double) t.properties.compare(u.properties);
@@ -291,11 +292,11 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
             t.label.setComparator(c);
             double dist = (double) t.label.compare(u.label);
             if(dist == 0){
-                WeightedComparator comp = null;
+                WeightedPropertiesComparator comp = null;
                 if(this.weights == null){
-                    comp = new WeightedComparator();
+                    comp = new WeightedPropertiesComparator();
                 }else{
-                    comp = new WeightedComparator(weights);
+                    comp = new WeightedPropertiesComparator(weights);
                 }
                 t.properties.setComparator(comp);
                 dist = (double) t.properties.compare(u.properties);
@@ -324,11 +325,11 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
         public Double apply(LabelProperties t, LabelProperties u){
             double dist = 0.0;
             if(t.label.isSoftIncluded(u.label)){
-                WeightedComparator c = null;
+                WeightedPropertiesComparator c = null;
                 if(this.weights == null){
-                    c = new WeightedComparator();
+                    c = new WeightedPropertiesComparator();
                 }else{
-                    c = new WeightedComparator(weights);
+                    c = new WeightedPropertiesComparator(weights);
                 }
                 t.properties.setComparator(c);
                 dist = (double) t.properties.compare(u.properties);
@@ -340,9 +341,9 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     
     }
     
-    private static class WeightedComparator implements Comparator <DescriptorList, Double> {
+    private static class WeightedPropertiesComparator implements Comparator <DescriptorList, Double> {
         private double weights[] = null;
-        public WeightedComparator(double... weights){
+        public WeightedPropertiesComparator(double... weights){
             if(weights != null)
                 this.weights = weights;
         }
