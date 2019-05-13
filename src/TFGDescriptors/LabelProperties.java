@@ -225,10 +225,9 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
         @Override
         public Double apply (LabelProperties t, LabelProperties u){
             double dist = 0.0;
-            if(t.label.isSoftIncluded(u.label))
-                dist = 0;
-            else
-                dist = Double.POSITIVE_INFINITY;
+            LabelDescriptor.SoftEqualComparator c = new LabelDescriptor.SoftEqualComparator();
+            t.label.setComparator(c);
+            dist = (Double) t.label.compare(u.label);
             return dist;
         }
     }
