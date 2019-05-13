@@ -46,14 +46,20 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     
     private Classifier<BufferedImage,? extends LabeledClassification> classifier = null; 
     
-    private static Class DefaultProperties[] = {MPEG7ColorStructure.class, MPEG7ScalableColor.class};
+    private static Class[] DEFAULT_PROPERTIES = {MPEG7ColorStructure.class, MPEG7ScalableColor.class};
     
     private static Comparator DEFAULT_COMPARATOR = new DefaultComparator();
     
     public LabelProperties (BufferedImage image){
         super(image, DEFAULT_COMPARATOR);
-        this.classProperties = DefaultProperties;
+        this.classProperties = DEFAULT_PROPERTIES;
         this.init(image);
+    }
+    
+    public LabelProperties(LabelDescriptor label){
+        super(null, new LabelDescriptorComparator());
+        this.classProperties = DEFAULT_PROPERTIES;
+        this.label = label;
     }
     
     /**
@@ -70,7 +76,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     
     public LabelProperties (BufferedImage image, Classifier<BufferedImage,? extends LabeledClassification> classifier){
         super(image, DEFAULT_COMPARATOR);
-        this.classProperties = DefaultProperties;
+        this.classProperties = DEFAULT_PROPERTIES;
         this.classifier = classifier;
         this.init(image);
     }
@@ -122,7 +128,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     
     public static void setDefaultProperties(Class<? extends MediaDescriptor>... classProperties){
         if(classProperties != null){
-            DefaultProperties = classProperties;
+            DEFAULT_PROPERTIES = classProperties;
         }
     }
 
@@ -212,6 +218,18 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
             return dist;
             }
             
+        }
+    }
+    
+    static public class LabelDescriptorComparator implements Comparator <LabelProperties, Double> {
+        @Override
+        public Double apply (LabelProperties t, LabelProperties u){
+            double dist = 0.0;
+            if(t.label.isSoftIncluded(u.label))
+                dist = 0;
+            else
+                dist = Double.POSITIVE_INFINITY;
+            return dist;
         }
     }
     
