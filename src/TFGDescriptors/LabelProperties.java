@@ -1,8 +1,11 @@
 package TFGDescriptors;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.security.InvalidParameterException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import jmr.descriptor.MediaDescriptorAdapter;
 import jmr.descriptor.MediaDescriptor;
 import jmr.descriptor.Comparator;
@@ -30,7 +33,7 @@ import jmr.descriptor.label.LabeledClassification;
  * @author Fernando
  */
 
-public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> implements Serializable{
+public class LabelProperties<BufferedImage> extends MediaDescriptorAdapter<BufferedImage> implements Serializable{
     /**
      * List of labels associated to the media
      */
@@ -39,14 +42,14 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     /**
      * List of types of the properties that represent the media
      */
-    private transient Class classProperties[] = null;
+    protected transient Class classProperties[] = null;
     
     /**
      * List of properties
      */
     protected DescriptorList properties = null;
     
-    private transient Classifier<BufferedImage,? extends LabeledClassification> classifier = null; 
+    protected transient Classifier<BufferedImage,? extends LabeledClassification> classifier = null; 
     
     private static Class[] DEFAULT_PROPERTIES = {MPEG7ColorStructure.class, MPEG7ScalableColor.class, SingleColorDescriptor.class};
     
@@ -62,9 +65,10 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     }
     
     public LabelProperties(LabelDescriptor label){
-        super(null, new LabelDescriptorComparator());
+        super(null, new InclusionComparator());
         this.classProperties = DEFAULT_PROPERTIES;
         this.label = label;
+        this.properties = new DescriptorList(null);
     }
     
     /**
@@ -160,6 +164,10 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
         }
     }
     
+    public void addProperty(MediaDescriptor descriptor){
+        this.properties.add(descriptor);
+    }
+    
     public MediaDescriptor getProperty(int index){
         return properties.get(index);
     }
@@ -176,19 +184,27 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     public String toString(){
         return (this.label.toString() + "\n" + this.properties.toString());
     }
-
-//    static class DefaultComparator implements Comparator <LabelProperties1, Double> {
-//        @Override
-//        public Double apply(LabelProperties1 t, LabelProperties1 u){
-//            WeightedPropertiesComparator c = new WeightedPropertiesComparator();
-//            t.properties.setComparator(c);
-//            double distProp = (double) t.properties.compare(u.properties);
-//            double distLabel = (double) t.label.compare(u.label);
-//            double dist = Math.sqrt(Math.pow(distLabel, 2) + Math.pow(distProp, 2));
-//            return dist;
-//
-//        }
-//    }
+    
+    static public class OnlyLabelsComparator implements Comparator <LabelProperties, Double>{
+        boolean labeledProperties = false;
+        
+        public OnlyLabelsComparator(boolean labeledProp){
+            labeledProperties = labeledProp;
+        }
+        
+        @Override
+        public Double apply(LabelProperties t, LabelProperties u){
+            LabelDescriptor.InclusionComparator c = new LabelDescriptor.InclusionComparator();
+            t.label.setComparator(c);
+            double dist = (double)t.label.compare(u.label);
+            if(labeledProperties == true && dist == 0){
+                LabelDescriptor label = (LabelDescriptor)t.properties.get(0);
+                label.setComparator(c);
+                dist = (double) label.compare(u.properties.get(0));
+            }
+            return dist;
+        }
+    }
     
     static public class WeightedLabelComparator implements Comparator <LabelProperties, Double> {
         double PropertyWeights[] = null;
@@ -227,7 +243,6 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
                 double distLabel = (double) t.label.compare(u.label);
                 double distProp = (double) t.properties.compare(u.properties);
                 double dist = (distLabel+1)*distProp;
-                //---------------------------------------------------------------------------
                 if(this.PropertyWeights != null && distProp == 0){
                     double sum = 0.0;
                     for(int i = 0; i < PropertyWeights.length; i++){
@@ -237,32 +252,11 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
                         dist = distLabel;
                     }
                 }
-                //---------------------------------------------------------------------------
                 return dist;
             }
             
         }
     }
-     
-    static public class LabelDescriptorComparator implements Comparator <LabelProperties, Double> {
-        @Override
-        public Double apply (LabelProperties t, LabelProperties u){
-            double dist = 0.0;
-            LabelDescriptor.SoftEqualComparator c = new LabelDescriptor.SoftEqualComparator();
-            t.label.setComparator(c);
-            //------------------------------------------
-            if(t.label.isEmpty()||u.label.isEmpty())
-                dist = Double.POSITIVE_INFINITY;
-            else
-                dist = (double) t.label.compare(u.label);
-            
-            dist = (Double) t.label.compare(u.label);
-            return dist;
-            //------------------------------------------
-        }
-    }
-    
-    
     /**
      * Si las etiquetas son iguales compara las propiedades, si no no
      */
@@ -281,10 +275,22 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
                 WeightedPropertiesComparator comp = new WeightedPropertiesComparator(weights);
                 t.properties.setComparator(comp);
             }
-            
+            double dist = 0.0;
             double distLabel = (double) t.label.compare(u.label);
+
             double distProp = (double) t.properties.compare(u.properties);
-            double dist = (distLabel+1)*distProp;
+            
+            if(this.weights != null && distProp == 0){
+                    double sum = 0.0;
+                    for(int i = 0; i < weights.length; i++){
+                        sum += weights[i];
+                    }
+                    if(sum == 0){
+                        dist = distLabel;
+                    }
+            }else{
+                dist = (distLabel+1)*distProp;
+            } 
             return dist;
         }
     }
@@ -304,10 +310,21 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
                 WeightedPropertiesComparator comp = new WeightedPropertiesComparator(weights);
                 t.properties.setComparator(comp);
             }
-            
+            double dist = 0.0;
             double distLabel = (double) t.label.compare(u.label);
+
             double distProp = (double) t.properties.compare(u.properties);
-            double dist = (distLabel+1)*distProp;
+            if(this.weights != null && distProp == 0){
+                    double sum = 0.0;
+                    for(int i = 0; i < weights.length; i++){
+                        sum += weights[i];
+                    }
+                    if(sum == 0){
+                        dist = distLabel;
+                    }
+            }else
+                dist = (distLabel+1)*distProp;
+                
             return dist;
         }
     }
@@ -327,110 +344,217 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
         }
         @Override
         public Double apply(LabelProperties t, LabelProperties u){
+            double dist = 0.0;
+            if(t.label.isSoftIncluded(u.label)){
+                WeightedPropertiesComparator c = null;
+                if(this.weights == null){
+                    c = new WeightedPropertiesComparator();
+                }else{
+                    c = new WeightedPropertiesComparator(weights);
+                }
+                t.properties.setComparator(c);
+                dist = (double) t.properties.compare(u.properties);
+            }else
+                dist = Double.POSITIVE_INFINITY;
+            return dist;
+        
+        }
+        
+        
+        /*public Double apply(LabelProperties t, LabelProperties u){
             LabelDescriptor.SoftEqualComparator c = new LabelDescriptor.SoftEqualComparator();
             t.label.setComparator(c);
             if(this.weights != null){
                 WeightedPropertiesComparator comp = new WeightedPropertiesComparator(weights);
                 t.properties.setComparator(comp);
             }
-            //---------------------------------------
+            double dist = 0.0;
             double distLabel = 0.0;
-            
-            if(t.label.isEmpty()||u.label.isEmpty())
-                distLabel = Double.POSITIVE_INFINITY;
-            else
-                distLabel = (double) t.label.compare(u.label);
-            //-------------------------------------
+            distLabel = (double) t.label.compare(u.label);
+
+            if(distLabel == Double.POSITIVE_INFINITY){
+                distLabel = 1.0;
+            }
             
             double distProp = (double) t.properties.compare(u.properties);
-            double dist = (distLabel+1)*distProp;
+            if(this.weights != null && distProp == 0){
+                    double sum = 0.0;
+                    for(int i = 0; i < weights.length; i++){
+                        sum += weights[i];
+                    }
+                    if(sum == 0){
+                        dist = distLabel;
+                    }
+            }else
+                dist = (distLabel+1)*distProp;
             return dist;
         
         }
-    
+        */
     }
     
     private static class WeightedPropertiesComparator implements Comparator <DescriptorList, Double> {
         private double weights[] = null;
         private final double SINGLE_COLOR_MAX_DISTANCE = 120;
         private final double STRUCTURED_COLOR_MAX_DISTANCE = 0.2;
-        private final double SCALABLE_COLOR_MAX_DISTANCE = 400;
+        private final double SCALABLE_COLOR_MAX_DISTANCE = 1000;
         public WeightedPropertiesComparator(double... weights){
             if(weights.length != 0)
                 this.weights = weights;
         }
-
-        @Override
-        public Double apply(DescriptorList t, DescriptorList u){
-            if(weights != null){
-                if(weights.length != t.size()){
-                    throw new InvalidParameterException("They must be the same number of weights than descriptors");
-                }
-            }
-            
+        
+        
+        
+        private double euclidea(DescriptorList t, DescriptorList u){
             double dist = 0.0;
-            double distProperty = 0.0;                                                              //distancia de una propiedad concreta
-            int numDescriptors = 0;
-            
-            for (int i=0 ; i < t.size(); i++){                                                      //Itero sobre ella buscando cuales son las propiedades en comun con la otra lista
-                for (int j=0; j < u.size(); j++){
-                    if(t.get(i).getClass().equals(u.get(j).getClass())){                            //Busco si los nombres de las propiedades coinciden
-                        numDescriptors++;
-                        if(t.get(i).getClass() == jmr.descriptor.color.SingleColorDescriptor.class){ //Si coinciden, compruebo que propiedad es, 
-                            distProperty = (double) t.get(i).compare(u.get(j));                     //en el caso de singlecolor le asigno poco peso poco peso 
-                            if(distProperty > SINGLE_COLOR_MAX_DISTANCE)                                                  //Le asigno el valor maximo para la normalización
-                                distProperty = SINGLE_COLOR_MAX_DISTANCE;
-                            if(weights != null){
-                                distProperty = (distProperty/SINGLE_COLOR_MAX_DISTANCE)
-                                                * this.weights[i];
-                            }else{
-                                distProperty = (distProperty/SINGLE_COLOR_MAX_DISTANCE)
-                                                * 0.15;
-                            }
-                            dist +=distProperty;
-                        }
-                        else if(t.get(i).getClass().equals(jmr.descriptor.color.MPEG7ColorStructure.class) ){
-                            distProperty = (double) t.get(i).compare(u.get(j));                     //en el caso de DominantColor le asigno mas peso 
-                            if(weights != null){
-                                distProperty = (distProperty/STRUCTURED_COLOR_MAX_DISTANCE)                                     //El valor maximo ronda los 0.2 
-                                            * this.weights[i];                                      // le asigno el peso
-                            }else{
-                                distProperty = (distProperty/STRUCTURED_COLOR_MAX_DISTANCE)                                     //El valor maximo ronda los 0.2 
-                                            * 0.35;                                                 // le asigno el peso
-                            }
-                            dist += distProperty;
-                        }
-                        else if (t.get(i).getClass().equals(jmr.descriptor.color.MPEG7ScalableColor.class)){
-                            distProperty = (double) t.get(i).compare(u.get(j));
-                            if(distProperty > 400)
-                                distProperty = 400;
-                            if(weights != null){
-                                distProperty = (distProperty/SCALABLE_COLOR_MAX_DISTANCE)
-                                            * this.weights[i];
-                            }else{
-                                distProperty = (distProperty/SCALABLE_COLOR_MAX_DISTANCE)
-                                            * 0.5;
-                            }
-
-                            dist +=distProperty;
-                        }
-                        else {
-                            distProperty = (double) t.get(i).compare(u.get(j));
-                            if (distProperty >1)
-                                throw new InvalidParameterException("Can not compare descriptor at pos " + i + ", distance must be in the interval [0,1]");
-                            else
-                                distProperty = distProperty*this.weights[i];
-                            dist +=distProperty;
-
-                        }
+            for(int i = 0; i < t.size(); i++){
+                for(int j = 0; j < t.size(); j++){
+                    if(t.get(i).getClass().equals(u.get(j).getClass())){
+                        dist += Math.pow((double)t.get(i).compare(u.get(j)),2);
                     }
                 }
             }
+            return Math.sqrt(dist);
+        }
+        
+        @Override
+        public Double apply(DescriptorList t, DescriptorList u){
+                    if(weights != null){
+                        if(weights.length != t.size()){
+                            throw new InvalidParameterException("They must be the same number of weights than descriptors");
+                        }
+                    }
+
+            double dist = 0.0;
+                    double distProperty = 0.0;                                                              //distancia de una propiedad concreta
+                    int numDescriptors = 0;
+                    for (int i=0 ; i < t.size(); i++){                                                      //Itero sobre ella buscando cuales son las propiedades en comun con la otra lista
+                        for (int j=0; j < u.size(); j++){
+                            if(t.get(i).getClass().equals(u.get(j).getClass())){                            //Busco si los nombres de las propiedades coinciden
+                                numDescriptors++;
+                                if(t.get(i).getClass() == jmr.descriptor.color.SingleColorDescriptor.class){ //Si coinciden, compruebo que propiedad es, 
+                                    distProperty = (double) t.get(i).compare(u.get(j));                     //en el caso de singlecolor le asigno poco peso poco peso 
+                                    if(distProperty > SINGLE_COLOR_MAX_DISTANCE)                                                  //Le asigno el valor maximo para la normalización
+                                        distProperty = SINGLE_COLOR_MAX_DISTANCE;
+                                    if(weights != null){
+                                        distProperty = (distProperty/SINGLE_COLOR_MAX_DISTANCE)
+                                                        * this.weights[i];
+                                    } else{
+                                        distProperty = Math.pow(distProperty, 2);
+                                    }
+                                    dist += distProperty;
+                                }
+                                else if(t.get(i).getClass().equals(jmr.descriptor.color.MPEG7ColorStructure.class) ){
+                                    distProperty = (double) t.get(i).compare(u.get(j));                     //en el caso de DominantColor le asigno mas peso 
+                                    if(distProperty > STRUCTURED_COLOR_MAX_DISTANCE)
+                                        distProperty = STRUCTURED_COLOR_MAX_DISTANCE;
+                                    if(weights != null){
+                                        distProperty = (distProperty/STRUCTURED_COLOR_MAX_DISTANCE)                                     //El valor maximo ronda los 0.2 
+                                                    * this.weights[i];                                      // le asigno el peso
+                                    } else{
+                                        distProperty = Math.pow(distProperty, 2);
+                                    }
+                                    dist += distProperty;
+                                }
+                                else if (t.get(i).getClass().equals(jmr.descriptor.color.MPEG7ScalableColor.class)){
+                                    distProperty = (double) t.get(i).compare(u.get(j));
+                                    if(distProperty > SCALABLE_COLOR_MAX_DISTANCE)
+                                        distProperty = SCALABLE_COLOR_MAX_DISTANCE;
+                                    if(weights != null){
+                                        distProperty = (distProperty/SCALABLE_COLOR_MAX_DISTANCE)
+                                                    * this.weights[i];
+                                    } else{
+                                        distProperty = Math.pow(distProperty, 2);
+                                    }
+                                    dist +=distProperty;
+                                }
+                                else{
+                                    return euclidea(t,u);
+                                }
+                            }
+                        }
+                    }
             if(numDescriptors != t.size())
                 throw new InvalidParameterException("Descriptors in both lists does not have the same length");
-            else
+            else if(weights == null){
+                dist = Math.sqrt(dist);
+            }
                 return dist;
+            }
+        }
+    
+    static public class LabeledPropertiesDescriptor<BufferedImage> extends LabelProperties<BufferedImage>{
+            public LabeledPropertiesDescriptor(BufferedImage img){
+                super(img);
+                this.classProperties = new Class[]{LabelDescriptor.class};
+                init(img);
+            }
+            
+            public void init(BufferedImage img){
+                if(this.classProperties != null){
+                    if(this.classifier == null){
+                        this.label = new LabelDescriptor(img);
+                    }
+                    else{
+                        this.label = new LabelDescriptor(img, classifier);
+                    }
+                    this.properties = new DescriptorList(null);
+                    SingleColorDescriptor Black = new SingleColorDescriptor(Color.BLACK);
+                    SingleColorDescriptor white = new SingleColorDescriptor(Color.WHITE);
+                    SingleColorDescriptor red = new SingleColorDescriptor(Color.RED);
+                    SingleColorDescriptor green = new SingleColorDescriptor(Color.GREEN);       
+                    SingleColorDescriptor blue = new SingleColorDescriptor(Color.BLUE);
+                    SingleColorDescriptor yellow = new SingleColorDescriptor(Color.YELLOW);
+                    SingleColorDescriptor grey = new SingleColorDescriptor(Color.GRAY);
+
+                    ArrayList<SingleColorDescriptor> colors = new ArrayList<SingleColorDescriptor>(
+                      Arrays.asList(Black, white, red, green, blue, yellow, grey)
+                    );
+                    java.awt.image.BufferedImage image = (java.awt.image.BufferedImage) img;
+                    SingleColorDescriptor singlecolor = new SingleColorDescriptor(image);
+
+                    Double min_dist = 0.0;
+                    Double dist = 0.0;
+                    min_dist = singlecolor.compare(Black);
+                    int min_index = 0;
+                    for(int i = 0; i< colors.size(); i++){
+                        dist = singlecolor.compare(colors.get(i));
+                        if(dist < min_dist){
+                            min_index = i;
+                            min_dist = dist;
+                        }
+                    }
+                    LabelDescriptor label;
+
+                    switch(min_index){
+                        case 0:
+                            label = new LabelDescriptor("Black");
+                            break;
+
+                        case 1:
+                            label = new LabelDescriptor("White");
+                            break;
+                        case 2:
+                            label = new LabelDescriptor("Red");
+                            break;
+                        case 3:
+                            label = new LabelDescriptor("Green");
+                            break;
+                        case 4:
+                            label = new LabelDescriptor("Blue");
+                            break;
+                        case 5:
+                            label = new LabelDescriptor("Yellow");
+                            break;
+                        case 6:
+                            label = new LabelDescriptor("Grey");
+                            break;
+                        default:
+                            label = new LabelDescriptor("Unknown");
+                    }
+                    System.out.println(this.properties);
+                    this.properties.add(label);
+                }
+            }
         }
     }
-    
-}

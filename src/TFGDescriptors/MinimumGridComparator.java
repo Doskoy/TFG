@@ -12,7 +12,7 @@ import jmr.descriptor.GriddedDescriptor;
  *
  * @author Fernando Roldán Zafra
  */
-class MinimumGridComparator implements Comparator <GriddedDescriptor, Double>{
+public class MinimumGridComparator implements Comparator <GriddedDescriptor, Double>{
 
     @Override
     public Double apply(GriddedDescriptor t, GriddedDescriptor u) {
