@@ -29,11 +29,11 @@ import jmr.descriptor.label.LabeledClassification;
  * by a list of labels and a list of properties specified at the moment
  * of it creation
  * 
- * @param <BufferedImage> The media described by this descriptor
- * @author Fernando
+ * @param <T> The Type of the media described by this descriptor
+ * @author Fernando Roldán Zafra
  */
 
-public class LabelProperties<BufferedImage> extends MediaDescriptorAdapter<BufferedImage> implements Serializable{
+public class LabelProperties<T> extends MediaDescriptorAdapter<T> implements Serializable{
     /**
      * List of labels associated to the media
      */
@@ -49,7 +49,7 @@ public class LabelProperties<BufferedImage> extends MediaDescriptorAdapter<Buffe
      */
     protected DescriptorList properties = null;
     
-    protected transient Classifier<BufferedImage,? extends LabeledClassification> classifier = null; 
+    protected transient Classifier<T,? extends LabeledClassification> classifier = null; 
     
     private static Class[] DEFAULT_PROPERTIES = {MPEG7ColorStructure.class, MPEG7ScalableColor.class, SingleColorDescriptor.class};
     
@@ -57,7 +57,7 @@ public class LabelProperties<BufferedImage> extends MediaDescriptorAdapter<Buffe
     
     private static Classifier DEFAULT_CLASSIFIER = null;
     
-    public LabelProperties (BufferedImage image){
+    public LabelProperties (T image){
         super(image, DEFAULT_COMPARATOR);
         this.classProperties = DEFAULT_PROPERTIES;
         this.classifier = DEFAULT_CLASSIFIER;
@@ -77,21 +77,21 @@ public class LabelProperties<BufferedImage> extends MediaDescriptorAdapter<Buffe
      * @param classProperties An undeterminate number of arguments of 
      * undeterminate types
      */
-    public LabelProperties (BufferedImage image, Class<? extends MediaDescriptor>... classProperties){
+    public LabelProperties (T image, Class<? extends MediaDescriptor>... classProperties){
         super(image, DEFAULT_COMPARATOR);
         this.classProperties = classProperties;
         this.classifier = DEFAULT_CLASSIFIER;
         this.init(image);
     }
     
-    public LabelProperties (BufferedImage image, Classifier<BufferedImage,? extends LabeledClassification> classifier){
+    public LabelProperties (T image, Classifier<T,? extends LabeledClassification> classifier){
         super(image, DEFAULT_COMPARATOR);
         this.classProperties = DEFAULT_PROPERTIES;
         this.classifier = classifier;
         this.init(image);
     }
    
-    public LabelProperties (BufferedImage image, Classifier<BufferedImage,? extends LabeledClassification> classifier, Class<? extends MediaDescriptor>... classProperties ){
+    public LabelProperties (T image, Classifier<T,? extends LabeledClassification> classifier, Class<? extends MediaDescriptor>... classProperties ){
         super(image, DEFAULT_COMPARATOR);
         this.classProperties = classProperties;
         this.classifier = classifier;
@@ -102,7 +102,7 @@ public class LabelProperties<BufferedImage> extends MediaDescriptorAdapter<Buffe
      * @param image
      */
     @Override
-    public void init(BufferedImage image){
+    public void init(T image){
         if(classProperties != null){
             if(this.classifier == null){
                 this.label = new LabelDescriptor(image);
@@ -483,7 +483,20 @@ public class LabelProperties<BufferedImage> extends MediaDescriptorAdapter<Buffe
             }
         }
     
-    static public class LabeledPropertiesDescriptor<BufferedImage> extends LabelProperties<BufferedImage>{
+    static public class ImageLabelProperties extends LabelProperties<BufferedImage>{
+
+        public ImageLabelProperties(BufferedImage media) {
+            super(media);
+        }
+        
+        public ImageLabelProperties(LabelDescriptor label) {
+            super(label);
+        }
+    }
+    
+    
+    
+    static public class LabeledPropertiesDescriptor extends LabelProperties<BufferedImage>{
             public LabeledPropertiesDescriptor(BufferedImage img){
                 super(img);
                 this.classProperties = new Class[]{LabelDescriptor.class};
@@ -557,4 +570,7 @@ public class LabelProperties<BufferedImage> extends MediaDescriptorAdapter<Buffe
                 }
             }
         }
+    
+    
+    //End of class LabelProperties
     }
