@@ -40,6 +40,7 @@ public class LabeledPropertiesDescriptor extends LabelProperties<BufferedImage>{
             SingleColorDescriptor very_dark_red = new SingleColorDescriptor(new Color(153,0,0));
 
             SingleColorDescriptor very_light_blue = new SingleColorDescriptor(new Color(51,204,255));
+            SingleColorDescriptor light_blue_1 = new SingleColorDescriptor(new Color(173,216,230));
             SingleColorDescriptor light_blue = new SingleColorDescriptor(new Color(51,153,255));
             SingleColorDescriptor blue = new SingleColorDescriptor(Color.BLUE);
             SingleColorDescriptor dark_blue = new SingleColorDescriptor(new Color(0,0,204));
@@ -61,40 +62,50 @@ public class LabeledPropertiesDescriptor extends LabelProperties<BufferedImage>{
 
             ArrayList<SingleColorDescriptor> colors = new ArrayList<SingleColorDescriptor>(
               Arrays.asList(very_light_red, light_red, red, dark_red, very_dark_red,
-                      very_light_blue, light_blue, blue, dark_blue, very_dark_blue,
+                      very_light_blue, light_blue_1, light_blue, blue, dark_blue, very_dark_blue,
                       very_light_green, light_green, green, dark_green, very_dark_green, 
                       very_light_yellow, light_yellow, yellow, dark_yellow, very_dark_yellow, 
                       black)
             );
             java.awt.image.BufferedImage image = (java.awt.image.BufferedImage) img;
             SingleColorDescriptor singlecolor = new SingleColorDescriptor(image);
-
-            Double min_dist = 0.0;
-            Double dist = 0.0;
-            min_dist = singlecolor.compare(black);
-            int min_index = 0;
-            for(int i = 0; i< colors.size(); i++){
-                dist = singlecolor.compare(colors.get(i));
-                if(dist < min_dist){
-                    min_index = i;
-                    min_dist = dist;
-                }
-                System.out.println(colors.get(i).getColor().toString() + " - " + singlecolor.getColor().toString() + dist);
-            }
-            System.out.println("Dist min " + min_index);
+            double single_color_red = singlecolor.getColor().getRed();
+            double single_color_green = singlecolor.getColor().getGreen();
+            double single_color_blue = singlecolor.getColor().getBlue();
+            double greyDist = Math.sqrt(Math.pow(single_color_red - single_color_green, 2.0) + Math.pow(single_color_blue - single_color_green, 2.0));
+            
             LabelDescriptor label = null;
-
-            if(min_index >= 0 && min_index <= 4){
-                label = new LabelDescriptor("Red");
-            }else if(min_index >= 5 && min_index <= 9){
-                label = new LabelDescriptor("Blue");
-            }else if(min_index >= 10 && min_index <= 14){
-                label = new LabelDescriptor("Green");
-            }else if(min_index >= 15 && min_index <= 19){
-                label = new LabelDescriptor("Yellow");
-            }else if(min_index == 20){
+            if(greyDist <= 5 && single_color_red <= 230){
                 label = new LabelDescriptor("Black");
+            }else{
+                Double min_dist = 0.0;
+                Double dist = 0.0;
+                min_dist = singlecolor.compare(black);
+                int min_index = 0;
+                for(int i = 0; i< colors.size(); i++){
+                    dist = singlecolor.compare(colors.get(i));
+                    if(dist < min_dist){
+                        min_index = i;
+                        min_dist = dist;
+                    }
+                    System.out.println(colors.get(i).getColor().toString() + " - " + singlecolor.getColor().toString() + dist);
+                }
+                System.out.println("Dist min " + min_index);
+                
+
+                if(min_index >= 0 && min_index <= 4){
+                    label = new LabelDescriptor("Red");
+                }else if(min_index >= 5 && min_index <= 10){
+                    label = new LabelDescriptor("Blue");
+                }else if(min_index >= 11 && min_index <= 15){
+                    label = new LabelDescriptor("Green");
+                }else if(min_index >= 16 && min_index <= 20){
+                    label = new LabelDescriptor("Yellow");
+                }else if(min_index == 21){
+                    label = new LabelDescriptor("Black");
+                }
             }
+            
 
             System.out.println(this.properties);
             this.properties.add(label);
