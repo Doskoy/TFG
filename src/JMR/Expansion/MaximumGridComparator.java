@@ -5,6 +5,7 @@
  */
 package JMR.Expansion;
 
+import java.util.ArrayList;
 import jmr.descriptor.Comparator;
 import jmr.descriptor.GriddedDescriptor;
 
@@ -13,20 +14,33 @@ import jmr.descriptor.GriddedDescriptor;
  * @author Fernando Roldán Zafra
  */
 public class MaximumGridComparator implements Comparator<GriddedDescriptor, Double> {
-
+    
     @Override
     public Double apply(GriddedDescriptor t, GriddedDescriptor u) {
+        ArrayList<Double> min_list = new ArrayList<Double>();
         Double dist;
-        Double distMin = (Double)t.getTileDescriptor(0).compare(u.getTileDescriptor(0));
+        Double dist_min; 
+        Double dist_max;
+        
         for(int i = 0; i<t.getNumTiles(); i++){
+            dist = (Double)t.getTileDescriptor(i).compare(u.getTileDescriptor(0));
+            dist_min = dist;
             for(int j = 0; j<u.getNumTiles(); j++){
                 dist = (Double)t.getTileDescriptor(i).compare(u.getTileDescriptor(j));
-                if(dist > distMin){
-                    distMin = dist;
-                }
+                if(dist < dist_min)
+                    dist_min = dist;
+            }
+            min_list.add(dist_min);
+        }
+        
+        dist_max = min_list.get(0);
+        for(Double i : min_list){
+            if(i > dist_max){
+                dist_max = i;
             }
         }
-        return distMin;
+
+        return dist_max;
     }
 }
 
