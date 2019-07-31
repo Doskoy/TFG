@@ -6,7 +6,10 @@ import java.io.Serializable;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import jmr.descriptor.MediaDescriptorAdapter;
 import jmr.descriptor.MediaDescriptor;
 import jmr.descriptor.Comparator;
@@ -23,6 +26,8 @@ import jmr.descriptor.label.LabelDescriptor.EqualComparator;
 import jmr.descriptor.label.LabelDescriptor.SoftEqualComparator;
 import jmr.descriptor.label.LabelDescriptor.InclusionComparator;
 import jmr.descriptor.label.LabeledClassification;
+import jmr.initial.descriptor.mpeg7.MPEG7DominantColors;
+import jmr.initial.descriptor.mpeg7.MPEG7DominantColors.MPEG7SingleDominatColor;
 
 
 /**
@@ -52,7 +57,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     
     protected transient Classifier<BufferedImage,? extends LabeledClassification> classifier = null; 
     
-    private static Class[] DEFAULT_PROPERTIES = {MPEG7ColorStructure.class, MPEG7ScalableColor.class, SingleColorDescriptor.class};
+    private static Class[] DEFAULT_PROPERTIES = {MPEG7ScalableColor.class};
     
     private static Comparator DEFAULT_COMPARATOR = new EqualLabelsComparator();
     
@@ -64,7 +69,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
         this.classifier = DEFAULT_CLASSIFIER;
         this.init(image);
     }
-    
+        
     public LabelProperties(LabelDescriptor label){
         super(null, new InclusionComparator());
         this.classProperties = DEFAULT_PROPERTIES;
@@ -102,6 +107,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
      *
      * @param image
      */
+    
     @Override
     public void init(BufferedImage image){
         if(classProperties != null){
@@ -180,6 +186,9 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     public DescriptorList getProperties(){
         return properties;
     }
+
+    
+    
     
     @Override
     public String toString(){
@@ -485,17 +494,6 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
             }
         }
     
-    static public class ImageLabelProperties extends LabelProperties{
-
-        public ImageLabelProperties(BufferedImage media) {
-            super(media);
-        }
-        
-        public ImageLabelProperties(LabelDescriptor label) {
-            super(label);
-        }
-    }
-    
     static public class LabeledColorDescriptor extends LabelProperties{
         public LabeledColorDescriptor(BufferedImage media){
             super(media);
@@ -521,108 +519,85 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
                     this.label = new LabelDescriptor(img, classifier);
                 }
                 this.properties = new DescriptorList(null);
-            
                 
-            
-            //Version Con Amarillo y Negro
-                /*
-                List<Integer> colors_red = new ArrayList<Integer>(
-                        Arrays.asList(255,192,203, 255,102,102, 255,51,51, 255,0,0, 204,0,0, 153,0,0, 132,101,102,
-                                192,127,126, 233,169,160, 221,198,197, 186,157,161, 96,59,59));
-                
-                List<Integer> colors_blue = new ArrayList<Integer>(
-                        Arrays.asList(51,204,255, 173,216,230, 51,153,255, 0,0,255, 0,0,204, 0,0,153, 157, 162, 187,
-                                191,193,205, 49,72,92));
-                
-                List<Integer> colors_green = new ArrayList<Integer>(
-                        Arrays.asList(102,255,102, 0,255,51, 0,255,255, 0,153,0, 0,102,0, 154,205,50, 144,238,144, 143,188,143,
-                                208,215,176, 102,115,101, 75,225,68, 198,237,197, 227,237,203, 56,114,73
-                        ));
-
-                List<Integer> colors_yellow = new ArrayList<Integer>(
-                        Arrays.asList(255,255,204, 255,255,153, 255,255,0, 204,204,0, 153,153,0, 232,219,163,
-                                177,154,86, 244,239,195, 242,228,185, 207,193,118
-                        ));
-                
-                ArrayList<Integer> colors_int = new ArrayList<Integer>();
-                
-                colors_int.addAll(colors_red);
-                colors_int.addAll(colors_blue);
-                colors_int.addAll(colors_green);
-                colors_int.addAll(colors_yellow);
-
-                ArrayList<SingleColorDescriptor> colors = new ArrayList<SingleColorDescriptor>();
-                
-                for(int i = 0; i < colors.size(); i = i+3){
-                    colors.add(new SingleColorDescriptor(new Color(i,i+1,i+2)));
-                }
-                colors.add(new SingleColorDescriptor(Color.BLACK));
-                
-                
-                
-                SingleColorDescriptor singlecolor = new SingleColorDescriptor(image);
-                SingleColorDescriptor black = new SingleColorDescriptor(Color.black);
-                double single_color_red = singlecolor.getColor().getRed();
-                double single_color_green = singlecolor.getColor().getGreen();
-                double single_color_blue = singlecolor.getColor().getBlue();
-                double greyDist = Math.sqrt(Math.pow(single_color_red - single_color_green, 2.0) + Math.pow(single_color_blue - single_color_green, 2.0));
-
-                LabelDescriptor label = null;
-                if(greyDist <= 10 && single_color_red <= 230){
-                    label = new LabelDescriptor("Black");
-                }else{
-                    Double min_dist = 0.0;
-                    Double dist = 0.0;
-                    min_dist = singlecolor.compare(black);
-                    int min_index = 0;
-                    for(int i = 0; i< colors.size(); i++){
-                        dist = singlecolor.compare(colors.get(i));
-                        if(dist < min_dist){
-                            min_index = i;
-                            min_dist = dist;
-                        }
-                        //System.out.println(colors.get(i).getColor().toString() + " - " + singlecolor.getColor().toString() + dist);
-                    }
-                    System.out.println(singlecolor + "Dist min " + min_index);
-                    
-
-                    if(min_index >= 0 && min_index <= 11){
-                        label = new LabelDescriptor("Red");
-                    }else if(min_index >= 12 && min_index <= 20){
-                        label = new LabelDescriptor("Blue");
-                    }else if(min_index >= 21 && min_index <= 34){
-                        label = new LabelDescriptor("Green");
-                    }else if(min_index >= 35 && min_index <= 44){
-                        label = new LabelDescriptor("Yellow");
-                    }else if(min_index == 45){
-                        label = new LabelDescriptor("Black");
-                    }
-                }
-            */
-                
-                LabelDescriptor label = null;
-                SingleColorDescriptor singlecolor = new SingleColorDescriptor(img);
-                System.out.println(singlecolor.toString());
-                
-                int red = singlecolor.getColor().getRed();
-                int green = singlecolor.getColor().getGreen();
-                int blue = singlecolor.getColor().getBlue();
-                
-                if(Math.abs(red - green) <= 40 && Math.abs(red-blue) >= 25 && Math.abs(green-blue) >= 25 && red-blue > 0 && green-blue > 0){
-                    label = new LabelDescriptor("Yellow");
-                }else if(red > green && red > blue){
-                    label = new LabelDescriptor("Red");
-                }else if(green > red && green > blue){
-                    label = new LabelDescriptor("Green");
-                }else if(blue > red && blue > green){
-                    label = new LabelDescriptor("Blue");
-                }else 
-                    label = new LabelDescriptor("Unknown");
-                
-                //System.out.println(this.properties);
+                LabelDescriptor label = getLabeledColors(img);
                 this.properties.add(label);
             }
         }
+        
+        public LabelDescriptor getLabeledColors(BufferedImage image){
+            Map<String, Color> basic_colors = new HashMap <String, Color>();
+            basic_colors.put("Pink", new Color(254,181,186));
+            basic_colors.put("Red", new Color(200,1,25));
+            basic_colors.put("Orange", new Color(243,132,1));
+            basic_colors.put("Brown", new Color(138,40,27));
+            basic_colors.put("Yellow", new Color(243,195,1));
+            basic_colors.put("Olive", new Color(102,93,30));
+            basic_colors.put("Yellow-Green", new Color(141,182,1));
+            basic_colors.put("Green", new Color(1,98,45));
+            basic_colors.put("Blue", new Color(1,103,194));
+            basic_colors.put("Purple", new Color(154,78,174));
+            basic_colors.put("White", new Color(252,252,249));
+            basic_colors.put("Gray", new Color(135,134,134));
+            basic_colors.put("Black", new Color(7,7,7));
+
+            LabelDescriptor color = null;
+
+            MPEG7DominantColors dominant_colors = new MPEG7DominantColors(0.3f, 0.01f);
+            dominant_colors.setSource(image);
+
+            ArrayList<jmr.initial.descriptor.mpeg7.MPEG7DominantColors.MPEG7SingleDominatColor> list_of_colors = dominant_colors.getDominantColors();
+            
+            ArrayList<String> color_string = new ArrayList<>();
+            Color analized_color;
+
+            double dist = 0;
+            double min_dist;
+
+            if(!list_of_colors.isEmpty()){
+                for(int i = 0; i < list_of_colors.size(); i++){
+                    analized_color = ((MPEG7SingleDominatColor)list_of_colors.get(i)).getColor();
+                    min_dist = Double.POSITIVE_INFINITY;
+                    String min_key = "White";
+                    for(Map.Entry<String, Color> entry: basic_colors.entrySet()){
+                        dist = compareColors(((MPEG7SingleDominatColor)list_of_colors.get(i)).getColor(), entry.getValue());
+                        if(dist < min_dist){
+                            min_dist = dist;
+                            min_key = entry.getKey();
+                        }
+
+                        System.out.println(entry.getKey().toString() + " " + entry.getValue() + " -> " + analized_color.toString());
+                    }
+                    System.out.println("------------------");
+                    color_string.add(min_key);
+                }
+                System.out.println(color_string.toString());
+                List<String> distinctList = color_string.stream().distinct().collect(Collectors.toList());
+                String label = distinctList.get(0);
+                String[] labels = {};
+
+                if(distinctList.size() > 1){
+                    distinctList.remove(0);
+                    labels = distinctList.toArray(new String[distinctList.size()]);
+
+                }
+                return new LabelDescriptor(label, labels);
+            }else{
+                return new LabelDescriptor(null);
+            }
+        }
+
+        private double compareColors(Color t, Color u){
+            double dist = Math.abs(t.getRed() - u.getRed()) + Math.abs(t.getGreen() - u.getGreen()) 
+                    + Math.abs(t.getBlue() - u.getBlue()) ;
+//                double red = Math.pow(t.getRed()-u.getRed(),2);
+//                double green = Math.pow(t.getGreen()-u.getGreen(),2);
+//                double blue = Math.pow(t.getBlue()-u.getBlue(),2);
+//                dist = Math.sqrt(red+green+blue);
+
+            return dist;
+        }
     }
-    //End of class LabelProperties
-    }
+    //End of class LabeledProperties
+}
+//End of class Labelproperties
