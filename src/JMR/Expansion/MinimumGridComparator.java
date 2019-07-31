@@ -5,6 +5,7 @@
  */
 package JMR.Expansion;
 
+import java.util.ArrayList;
 import jmr.descriptor.Comparator;
 import jmr.descriptor.GriddedDescriptor;
 
@@ -16,6 +17,8 @@ public class MinimumGridComparator implements Comparator <GriddedDescriptor, Dou
 
     @Override
     public Double apply(GriddedDescriptor t, GriddedDescriptor u) {
+        
+        /*
         Double dist;
         Double distMin = (Double)t.getTileDescriptor(0).compare(u.getTileDescriptor(0));
         for(int i = 0; i<t.getNumTiles(); i++){
@@ -27,5 +30,30 @@ public class MinimumGridComparator implements Comparator <GriddedDescriptor, Dou
             }
         }
         return distMin;
+        */
+        ArrayList<Double> min_list = new ArrayList<Double>();
+        Double dist;
+        Double dist_min; 
+        Double dist_min_global;
+        
+        for(int i = 0; i<t.getNumTiles(); i++){
+            dist = (Double)t.getTileDescriptor(i).compare(u.getTileDescriptor(0));
+            dist_min = dist;
+            for(int j = 0; j<u.getNumTiles(); j++){
+                dist = (Double)t.getTileDescriptor(i).compare(u.getTileDescriptor(j));
+                if(dist < dist_min)
+                    dist_min = dist;
+            }
+            min_list.add(dist_min);
+        }
+        
+        dist_min_global = min_list.get(0);
+        for(Double i : min_list){
+            if(i < dist_min_global){
+                dist_min_global = i;
+            }
+        }
+        return dist_min_global;
     }
+    
 }

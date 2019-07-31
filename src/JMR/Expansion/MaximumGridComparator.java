@@ -39,7 +39,6 @@ public class MaximumGridComparator implements Comparator<GriddedDescriptor, Doub
                 dist_max = i;
             }
         }
-
         return dist_max;
     }
 }
