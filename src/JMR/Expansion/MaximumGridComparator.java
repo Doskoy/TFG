@@ -33,7 +33,7 @@ public class MaximumGridComparator implements Comparator<GriddedDescriptor, Doub
             min_list.add(dist_min);
         }
         
-        dist_max = min_list.get(0);
+        dist_max = 0.0;
         for(Double i : min_list){
             if(i > dist_max){
                 dist_max = i;
