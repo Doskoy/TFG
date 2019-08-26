@@ -582,9 +582,6 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
          * The weights of the descriptor
          */
         private double weights[] = null;
-        private final double SINGLE_COLOR_MAX_DISTANCE = 120;
-        private final double STRUCTURED_COLOR_MAX_DISTANCE = 0.2;
-        private final double SCALABLE_COLOR_MAX_DISTANCE = 1000;
         /**
          * Creates a comparator with the given weights
          * @param weights The weights that will be used
