@@ -10,11 +10,21 @@ import jmr.descriptor.Comparator;
 import jmr.descriptor.GriddedDescriptor;
 
 /**
- *
+ * Class that implements the comparation between two griddedDescriptor objects 
+ * In this case the comparation will take one tile of one grid each time and will compare 
+ * this tile with all the tiles in the other grid looking for the minimum. 
+ * Once each tile have search its minimum the comparator search for the maximum of these minimums
+ * 
  * @author Fernando Roldán Zafra
  */
 public class MaximumGridComparator implements Comparator<GriddedDescriptor, Double> {
     
+    /**
+     * Apply this comparator
+     * @param t The first grid
+     * @param u The second grid
+     * @return It returns the maximum diference between all the minimums associated to each tile.
+     */
     @Override
     public Double apply(GriddedDescriptor t, GriddedDescriptor u) {
         ArrayList<Double> min_list = new ArrayList<Double>();

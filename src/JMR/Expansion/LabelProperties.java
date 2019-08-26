@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.security.InvalidParameterException;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,27 +19,22 @@ import jmr.descriptor.MediaDescriptor;
 import jmr.descriptor.Comparator;
 import jmr.descriptor.DescriptorList;
 import jmr.descriptor.MediaDescriptorFactory;
-
-import jmr.descriptor.color.MPEG7ColorStructure;
 import jmr.descriptor.color.MPEG7ScalableColor;
-import jmr.descriptor.color.SingleColorDescriptor;
 import jmr.descriptor.label.Classifier;
 import jmr.descriptor.label.LabelDescriptor;
 import jmr.descriptor.label.LabelDescriptor.WeightBasedComparator;
 import jmr.descriptor.label.LabelDescriptor.EqualComparator;
-import jmr.descriptor.label.LabelDescriptor.SoftEqualComparator;
-import jmr.descriptor.label.LabelDescriptor.InclusionComparator;
 import jmr.descriptor.label.LabeledClassification;
 import jmr.initial.descriptor.mpeg7.MPEG7DominantColors;
 import jmr.initial.descriptor.mpeg7.MPEG7DominantColors.MPEG7SingleDominatColor;
 
 
 /**
- * This class is a descriptor of an image wich is compone
+ * This class is a descriptor of an image wich is composed
  * by a list of labels and a list of properties specified at the moment
- * of it creation
+ * of its creation
  * 
- * @param <T> The Type of the media described by this descriptor
+ * @param <BufferedImage> The Type of the media described by this descriptor
  * @author Fernando Roldán Zafra
  */
 
@@ -60,21 +54,45 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
      */
     protected DescriptorList properties = null;
     
+    /**
+     * Classifier used to label the given image.
+     */
     protected transient Classifier<BufferedImage,? extends LabeledClassification> classifier = null; 
     
+    /**
+     * Visual Properties used by default
+     */
     private static Class[] DEFAULT_PROPERTIES = {MPEG7ScalableColor.class};
     
+    /**
+     * Comparator used by default
+     */
     private static Comparator DEFAULT_COMPARATOR = new EqualLabelsComparator();
+    
+    /**
+     * Classifier used by default 
+     */
     
     private static Classifier DEFAULT_CLASSIFIER = null;
     
+    /**
+     * Construct an object using the given image, it will use the default classifier,
+     * properties and comparator.
+     * @param image 
+     */
     public LabelProperties (BufferedImage image){
         super(image, DEFAULT_COMPARATOR);
         this.classProperties = DEFAULT_PROPERTIES;
         this.classifier = DEFAULT_CLASSIFIER;
         this.init(image);
     }
-        
+    
+    /**
+     * Construct an object with no image, or properties just with a list of labels. It is used to make querys to the database.
+     * It will use the {@link InclusionComparator()}
+     * @param label the label that will have the object
+     */
+    
     public LabelProperties(LabelDescriptor label){
         super(null, new InclusionComparator());
         this.classProperties = DEFAULT_PROPERTIES;
@@ -83,10 +101,9 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     }
     
     /**
-     * Contruct the descriptor with the default comparator
-     * @param image The media to be descripted
-     * @param classProperties An undeterminate number of arguments of 
-     * undeterminate types
+     * Contruct an object using the given image and calculating the properties specified. It will use the default comparator
+     * @param image The media to be described
+     * @param classProperties The visualProperties that will be calculated for the given image
      */
     public LabelProperties (BufferedImage image, Class<? extends MediaDescriptor>... classProperties){
         super(image, DEFAULT_COMPARATOR);
@@ -94,7 +111,12 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
         this.classifier = DEFAULT_CLASSIFIER;
         this.init(image);
     }
-    
+
+    /**
+     * Construct an object using the given image, the given classifier and the defaults properties an comparator
+     * @param image The media to be described 
+     * @param classifier The classifier that will be used to label the given image
+     */
     public LabelProperties (BufferedImage image, Classifier<BufferedImage,? extends LabeledClassification> classifier){
         super(image, DEFAULT_COMPARATOR);
         this.classProperties = DEFAULT_PROPERTIES;
@@ -102,6 +124,12 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
         this.init(image);
     }
    
+    /**
+     * Construct an object using the given image, the given classifier and the given properties, it will use the default comparator
+     * @param image The media to be described
+     * @param classifier The classifier that will be used to label the given image
+     * @param classProperties The properties that will be calculated for the given image
+     */
     public LabelProperties (BufferedImage image, Classifier<BufferedImage,? extends LabeledClassification> classifier, Class<? extends MediaDescriptor>... classProperties ){
         super(image, DEFAULT_COMPARATOR);
         this.classProperties = classProperties;
@@ -109,8 +137,8 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
         this.init(image);
     }
     /**
-     *
-     * @param image
+     * Initialize the descriptor with the specified properties and the label that will be calculated
+     * @param image the image that will be used to initialize the descriptor
      */
     
     @Override
@@ -148,26 +176,52 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
         }
     }
     
+    /**
+     *  Set the default properties for this class.
+     * @param classProperties The properties that will be used by default.
+     */
     public static void setDefaultProperties(Class<? extends MediaDescriptor>... classProperties){
         if(classProperties != null){
             DEFAULT_PROPERTIES = classProperties;
         }
     }
     
+    /**
+     *  Set the default classifier for this class.
+     * @param classifier The classifier that will be used by default for this class
+     */
     public static void setDefaultClassifier(Classifier classifier){
         DEFAULT_CLASSIFIER = classifier;
     }
-    public static void setDefaultComparator(Comparator c){
-        DEFAULT_COMPARATOR = c;
+    
+    /**
+     * Set the default comparator for this class.
+     * @param comparator The comparator that will be used by default
+     */
+    public static void setDefaultComparator(Comparator comparator){
+        DEFAULT_COMPARATOR = comparator;
     }
+    
+    /**
+     * Set the classifier for this object.
+     * @param classifier The classifier that will be used for this object. 
+     */
     public void setClassifier(Classifier classifier){
         this.label.setClassifier(classifier);
     }
     
+    /**
+     * Returns the {@link jmr.descriptor.label.LabelDescriptor()} of this object
+     * @return the label of this object
+     */
     public LabelDescriptor getLabel(){
         return label;
     } 
     
+    /**
+     * Allows to add properties to this object. It will be calculated automatically
+     * @param classProperties The class of the properties that will be added to this object.
+     */
     public void addProperty(Class <? extends MediaDescriptor>... classProperties){
         MediaDescriptor descriptor;
         for (Class c : classProperties){
@@ -176,37 +230,78 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
         }
     }
     
+    /**
+     * Add a calculated property to this object.
+     * @param descriptor The property to be added.
+     */
+    
     public void addProperty(MediaDescriptor descriptor){
         this.properties.add(descriptor);
     }
     
+    /**
+     * Return the property at the specified position.
+     * @param index The position of the descriptor to retrieve
+     * @return the property at the specified position
+     */
     public MediaDescriptor getProperty(int index){
         return properties.get(index);
     }
     
+    /**
+     * Return the number of properties for this object
+     * @return the number of properties for this object
+     */
     public int SizeProperties(){
         return properties.size();
     }
+    
+    /**
+     * Return the list of properties
+     * @return the list of properties
+     */
     
     public DescriptorList getProperties(){
         return properties;
     }
 
-    
-    
-    
+    /**
+     * Return a string with all the data of this descriptor
+     * @return a string with all the data of this descriptor
+     */
     @Override
     public String toString(){
         return (this.label.toString() + "\n" + this.properties.toString());
     }
     
+    /**
+     * Functional class that implements the comparation between this descriptor.
+     * It only compares the labels and if it is indicated it also compares the 
+     * properties as a label. 
+     */
     static public class OnlyLabelsComparator implements Comparator <LabelProperties, Double>{
-        boolean labeledProperties = false;
+        /**
+         * Boolean that indicates if in the comparation will be also compared the properties as a label.
+         * If false, it will only compare the label of the descriptor, ignoring
+         * the properties. If true, it will also compare the properties.
+         */
         
+        private boolean labeledProperties = false;
+        
+        /**
+         * Construct a comparator based only on labels.
+         * @param labeledProp boolean for check if the properties are also labels
+         */
         public OnlyLabelsComparator(boolean labeledProp){
             labeledProperties = labeledProp;
         }
         
+        /**
+         * Aplies this comparator to the given arguments.
+         * @param t The first argument
+         * @param u The second argument
+         * @return Distance between arguments
+         */
         @Override
         public Double apply(LabelProperties t, LabelProperties u){
             LabelDescriptor.InclusionComparator c = new LabelDescriptor.InclusionComparator();
@@ -229,11 +324,38 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
         }
     }
     
+    /**
+     * Functional class that represents the comparation based on weighted labels.
+     * It returns the distance between weighted labels combined with the 
+     * distance between properties.
+     * 
+     * It also allows to set a weight for the properties. This weight will be 
+     * used to gives a property more importance than others.
+     */
     static public class WeightedLabelComparator implements Comparator <LabelProperties, Double> {
-        double PropertyWeights[] = null;
-        int type = 4;
-        boolean only_inclusion = false;
+        /**
+         * Weights asociated to the properties. 
+         */
+        private double PropertyWeights[] = null;
+        
+        /**
+         * Type of distance agregation based on the euclidean distance
+         */
+        private int type = 4;
+        
+        /**
+         * If true, only inclusion will be used. If not it will use equality
+         */
+        private boolean only_inclusion = false;
 
+        /**
+         * Construct a comparator with the given type of agregation and weights 
+         * of properties and the specified comparation (inclusion or equality).
+         * @param type Type of distance agregation
+         * @param only_inclusion If true only inclusion will be used, if not, 
+         * it will use equality
+         * @param weights weights of properties.
+         */
         public WeightedLabelComparator (int type, boolean only_inclusion, double... weights){
             if(weights != null)
                 this.PropertyWeights = weights;
@@ -241,17 +363,34 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
             this.only_inclusion = only_inclusion;
         }
         
+        /**
+         * Construct a comparator with the given type of agregation and weights 
+         * of properties. It will use equality comparation
+         * @param type Type of distance agregation
+         * @param weights weights of properties.
+         */
         public WeightedLabelComparator (int type, double... weights){
             if(weights != null)
                 this.PropertyWeights = weights;
             this.type = type;
         }
         
+        /**
+         * Construct a comparator with the given weights of properties. It will 
+         * use equality comparation and the euclidean type agregation
+         * @param weights 
+         */
         public WeightedLabelComparator (double... weights){
             if(weights != null)
                 this.PropertyWeights = weights;
         }
         
+        /**
+         * Aplies this comparator to the given arguments
+         * @param t The first argument
+         * @param u The second argument
+         * @return The distance between both arguments
+         */
         @Override
         public Double apply(LabelProperties t, LabelProperties u){
             if (!t.label.isWeighted() || !u.label.isWeighted()){
@@ -280,11 +419,22 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
             
         }
     }
+    
     /**
-     * Si las etiquetas son iguales compara las propiedades, si no no
+     * Functional class that implements the comparation based on equality. 
+     * if Labels are equal it takes the distance of properties as distance. If labels 
+     * are not equals, it return infinity as distance.
      */
     static public class EqualLabelsComparator implements Comparator <LabelProperties, Double>{
+        /**
+         * Weights asociated to the properties. 
+         */
         double weights[] = null;
+
+        /**
+         * Constructs a comparator based on equality
+         * @param weights The weights of the properties
+         */
         public EqualLabelsComparator(double... weights){
             if(weights != null)
                 this.weights = weights;
@@ -303,6 +453,9 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
 
             double distProp = (double) t.properties.compare(u.properties);
             
+            //This condition solves the problem that happen when the weights of 
+            //properties are 0 when combine distLabel and distprop if weights of
+            //properties are 0 distance becomes 0 and it doesnt take in count the labels
             if(this.weights != null && distProp == 0){
                     double sum = 0.0;
                     for(int i = 0; i < weights.length; i++){
@@ -318,13 +471,32 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
         }
     }
     
+    /**
+     * Functional class that implements the comparation based on Inclusion. 
+     * if in the comparation the labels are included it takes the distance of properties as distance. If labels 
+     * are not included, it return infinity as distance.
+     */
     static public class InclusionComparator implements Comparator <LabelProperties, Double>{
+        
+        /**
+        * Weights asociated to the properties. 
+        */
         double weights[] = null;
+        
+        /**
+         * Constructs a comparator based on inclusion
+         * @param weights The weights of the properties
+         */
         public InclusionComparator(double... weights){
             if(weights != null)
                 this.weights = weights;
         }
-        
+        /**
+         * Apply this comparation
+         * @param t The first argument
+         * @param u The second argument
+         * @return The distance between arguments
+         */
         @Override
         public Double apply(LabelProperties t, LabelProperties u){
             LabelDescriptor.InclusionComparator c = new LabelDescriptor.InclusionComparator();
@@ -353,18 +525,32 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     }
     
     /**
-     * If both comparators have any common label, it compare the properties otherwise 
-     * it returns 1
+     * If both arguments have any common label, it compare the properties otherwise 
+     * it returns infinity
      * @param weights Weights that are going to be used to compare the properties
-     * @return 1 if there'nt any common label, 0 if they have a common label
+     * @return It returns infinity if there are not any common label, 0 if they have a common label
      */
     static public class SoftEqualComparator implements Comparator <LabelProperties, Double>{
+        /**
+         * Weights asociated to the properties. 
+         */
         double weights[] = null;
         
+        /**
+         * Construct a comparator based on the soft equal comparation.
+         * @param weights Weights asociated to the properties
+         */
         public SoftEqualComparator(double... weights){
             if(weights != null)
                 this.weights = weights;
         }
+        
+        /**
+         * Apply this comparation
+         * @param t The first argument
+         * @param u The second argument
+         * @return The distance between arguments
+         */
         @Override
         public Double apply(LabelProperties t, LabelProperties u){
             double dist = 0.0;
@@ -383,134 +569,98 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
         
         }
         
-        
-        /*public Double apply(LabelProperties t, LabelProperties u){
-            LabelDescriptor.SoftEqualComparator c = new LabelDescriptor.SoftEqualComparator();
-            t.label.setComparator(c);
-            if(this.weights != null){
-                WeightedPropertiesComparator comp = new WeightedPropertiesComparator(weights);
-                t.properties.setComparator(comp);
-            }
-            double dist = 0.0;
-            double distLabel = 0.0;
-            distLabel = (double) t.label.compare(u.label);
-
-            if(distLabel == Double.POSITIVE_INFINITY){
-                distLabel = 1.0;
-            }
-            
-            double distProp = (double) t.properties.compare(u.properties);
-            if(this.weights != null && distProp == 0){
-                    double sum = 0.0;
-                    for(int i = 0; i < weights.length; i++){
-                        sum += weights[i];
-                    }
-                    if(sum == 0){
-                        dist = distLabel;
-                    }
-            }else
-                dist = (distLabel+1)*distProp;
-            return dist;
-        
-        }
-        */
     }
     
+    /**
+     * Functional class implemented for compare list of descriptors. It takes as
+     * parameter a list of weights that represents the weights associated to each descriptor 
+     * in the list. If the list is empty it calculates the euclidean distance between
+     * descriptors
+     */
     public static class WeightedPropertiesComparator implements Comparator <DescriptorList, Double> {
+        /**
+         * The weights of the descriptor
+         */
         private double weights[] = null;
         private final double SINGLE_COLOR_MAX_DISTANCE = 120;
         private final double STRUCTURED_COLOR_MAX_DISTANCE = 0.2;
         private final double SCALABLE_COLOR_MAX_DISTANCE = 1000;
+        /**
+         * Creates a comparator with the given weights
+         * @param weights The weights that will be used
+         */
+        
         public WeightedPropertiesComparator(double... weights){
             if(weights.length != 0)
                 this.weights = weights;
         }
         
-        
-        
-        private double euclidea(DescriptorList t, DescriptorList u){
+        /**
+         * Apply this comparation to the given arguments
+         * @param t The first argument
+         * @param u The second argument
+         * @return The distance between arguments
+         */
+        @Override
+        public Double apply(DescriptorList t, DescriptorList u){
+            if(weights != null){
+                if(weights.length != t.size()){
+                    throw new InvalidParameterException("They must be the same number of weights than descriptors");
+                }
+            }
+            
             double dist = 0.0;
-            for(int i = 0; i < t.size(); i++){
-                for(int j = 0; j < t.size(); j++){
+            double distProperty = 0.0;
+            int numDescriptors = 0;
+            
+            for(int i=0; i < t.size(); i++){
+                for(int j=0; j < u.size(); j++){
                     if(t.get(i).getClass().equals(u.get(j).getClass())){
-                        dist += Math.pow((double)t.get(i).compare(u.get(j)),2);
+                        numDescriptors++;
+                        distProperty = (double) t.get(i).compare(u.get(j));
+                        if(weights != null){
+                            distProperty = distProperty * this.weights[i];
+                        }
+                        distProperty = Math.pow(distProperty, 2);
+                        
+                        dist += distProperty;
                     }
                 }
             }
-            return Math.sqrt(dist);
-        }
-        
-        @Override
-        public Double apply(DescriptorList t, DescriptorList u){
-                    if(weights != null){
-                        if(weights.length != t.size()){
-                            throw new InvalidParameterException("They must be the same number of weights than descriptors");
-                        }
-                    }
-
-            double dist = 0.0;
-                    double distProperty = 0.0;                                                              //distancia de una propiedad concreta
-                    int numDescriptors = 0;
-                    for (int i=0 ; i < t.size(); i++){                                                      //Itero sobre ella buscando cuales son las propiedades en comun con la otra lista
-                        for (int j=0; j < u.size(); j++){
-                            if(t.get(i).getClass().equals(u.get(j).getClass())){                            //Busco si los nombres de las propiedades coinciden
-                                numDescriptors++;
-                                if(t.get(i).getClass() == jmr.descriptor.color.SingleColorDescriptor.class){ //Si coinciden, compruebo que propiedad es, 
-                                    distProperty = (double) t.get(i).compare(u.get(j));                     //en el caso de singlecolor le asigno poco peso poco peso 
-                                    if(distProperty > SINGLE_COLOR_MAX_DISTANCE)                                                  //Le asigno el valor maximo para la normalización
-                                        distProperty = SINGLE_COLOR_MAX_DISTANCE;
-                                    if(weights != null){
-                                        distProperty = (distProperty/SINGLE_COLOR_MAX_DISTANCE)
-                                                        * this.weights[i];
-                                    }else{
-                                        distProperty = Math.pow(distProperty, 2);
-                                    }
-                                    dist += distProperty;
-                                }
-                                else if(t.get(i).getClass().equals(jmr.descriptor.color.MPEG7ColorStructure.class) ){
-                                    distProperty = (double) t.get(i).compare(u.get(j));                     //en el caso de DominantColor le asigno mas peso 
-                                    if(distProperty > STRUCTURED_COLOR_MAX_DISTANCE)
-                                        distProperty = STRUCTURED_COLOR_MAX_DISTANCE;
-                                    if(weights != null){
-                                        distProperty = (distProperty/STRUCTURED_COLOR_MAX_DISTANCE)                                     //El valor maximo ronda los 0.2 
-                                                    * this.weights[i];                                      // le asigno el peso
-                                    } else{
-                                        distProperty = Math.pow(distProperty, 2);
-                                    }
-                                    dist += distProperty;
-                                }
-                                else if (t.get(i).getClass().equals(jmr.descriptor.color.MPEG7ScalableColor.class)){
-                                    distProperty = (double) t.get(i).compare(u.get(j));
-                                    if(distProperty > SCALABLE_COLOR_MAX_DISTANCE)
-                                        distProperty = SCALABLE_COLOR_MAX_DISTANCE;
-                                    if(weights != null){
-                                        distProperty = (distProperty/SCALABLE_COLOR_MAX_DISTANCE)
-                                                    * this.weights[i];
-                                    } else{
-                                        distProperty = Math.pow(distProperty, 2);
-                                    }
-                                    dist +=distProperty;
-                                }
-                                else{
-                                    return euclidea(t,u);
-                                }
-                            }
-                        }
-                    }
             if(numDescriptors != t.size())
                 throw new InvalidParameterException("Descriptors in both lists does not have the same length");
-            else if(weights == null){
+            else {
                 dist = Math.sqrt(dist);
             }
                 return dist;
-            }
         }
+    }
     
+    /**
+     * Special case when a LabelProperties is composed by two labels, one for describe the 
+     * cathegory of the object and another one for describe its visual properties, specifically
+     * its dominants colors if specified it will use fuzzy colors space for label the colors
+     */
     static public class LabeledColorDescriptor extends LabelProperties{
+        /**
+         * This variable specify if the label for the dominants colors will be weighted
+         */
         private static Boolean WEIGHTED = false;
+        
+        /**
+         * Basic colors that will be used for calculate the label
+         */
         private static Map<String, List<Color>> basic_colors = new HashMap <String, List<Color>>();
+        
+        /**
+         * Map of colors that will be used for create a fuzzy color space
+         */
         private static Map<String, Point3D> prototype = new ISCCColorMap(ISCCColorMap.TYPE_CUSTOM);
         
+        /**
+         * Construct a descriptor of this type using the given media
+         * @param media The media that will be used to create this descriptor
+         */
         public LabeledColorDescriptor(BufferedImage media){
             super(media);
             init(media, WEIGHTED);
@@ -518,6 +668,14 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
             this.comparator = new InclusionComparator();
         }
                 
+        /**
+         * Construct a descriptor of this tyhpe using the given label for the category object
+         * and the given color for the color label. It is used for create a query for the 
+         * Data base
+         * 
+         * @param Label The label of the object category
+         * @param Color The label of the color
+         */
         public LabeledColorDescriptor(LabelDescriptor Label, LabelDescriptor Color){
             super(Label);
             this.label = Label;
@@ -527,6 +685,13 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
             this.properties.add(color);
             this.comparator = new InclusionComparator();
         }
+        
+        /**
+         * Initialize this descriptor using the given image, if fuzzy variable is true
+         * it will use fuzzy color spaces for label the colors. 
+         * @param img The image used to calculate this descriptor
+         * @param fuzzy Condition that specify if fuzzy color spaces will be used
+         */
         
         public void init(BufferedImage img, Boolean fuzzy){
             if(this.classProperties != null){
@@ -545,10 +710,14 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
             }
         }
         
+        /**
+         * Initialize the colors.
+         * @param fuzzy if true it will initialize the map for create a fuzzy color
+         * space.
+         */
         public void initColors(Boolean fuzzy){
             if(fuzzy){
                 prototype.put("Pink", new Point3D(220, 160, 161));
-                //prototype.put("Red", new Point3D(188, 63, 74));
                 prototype.put("Red", new Point3D(230, 0, 38));
                 prototype.put("Orange", new Point3D(243, 132, 1));
                 prototype.put("Brown", new Point3D(180,116,94));
@@ -570,7 +739,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
 
                 //Red
                 colors = new ArrayList<Color>(
-                        Arrays.asList(new Color(190, 1, 50) , new Color(150,10,10), new Color(188, 63, 74), new Color(132, 27, 45))
+                        Arrays.asList(new Color(190, 1, 50) , new Color(150,10,10), new Color(180, 60, 70), new Color(130, 20, 45), new Color(150,50,50))
                 );
                 basic_colors.put("Red", colors);
 
@@ -645,6 +814,12 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
             }
         }
         
+        /**
+         * Return the color's label
+         * @param image The image to calculate its color's labels
+         * @param weighted If true it will use fuzzy color spaces 
+         * @return Label of colors
+         */
         public LabelDescriptor getLabeledColors(BufferedImage image, Boolean weighted){
             if(!weighted){
                 MPEG7DominantColors dominant_colors = new MPEG7DominantColors(0.6f, 0.03f);
@@ -679,8 +854,8 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
                 }
             }else{
                 LabelDescriptor labelD; 
-                Map prototipos = new ISCCColorMap(ISCCColorMap.TYPE_BASIC);
-//                FuzzyColorSpace fcs = FuzzyColorSpace.Factory.createSphereBasedFCS(prototipos);
+                //Map prototipos = new ISCCColorMap(ISCCColorMap.TYPE_BASIC);
+//                FuzzyColorSpace fcs = FuzzyColorSpace.Factory.createSphereBasedFCS(prototype);
                 FuzzyColorSpace fcs = FuzzyColorSpace.Factory.createFuzzyCMeansFCS(prototype);
                 MPEG7DominantColors dominant_colors = new MPEG7DominantColors(0.6f, 0.03f);
                 dominant_colors.setSource(image);
@@ -735,6 +910,11 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
             }
         }
         
+        /**
+         * This function, given a DominantColor returns a label with the name of that color
+         * @param color The color to be labeled
+         * @return String representing a color label
+         */
         private String getSingleColorTag(MPEG7SingleDominatColor color){
             String label = null;
             double min_dist = Double.POSITIVE_INFINITY;
@@ -751,11 +931,21 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
             }
             return min_key;
         }
-        
+        /**
+         * Set if the labels of the colors are weighted or not
+         * @param weight Boolean representing if the color labels will be weighted 
+         * or not.
+         */
         public static void setWeighted(boolean weight){
             WEIGHTED = weight;
         }
         
+        /**
+         * This function given two colors return a distance between them
+         * @param t The first color
+         * @param u The second color
+         * @return Distance between colors
+         */
         private double compareColors(Color t, Color u){
             double dist;// = Math.abs(t.getRed() - u.getRed()) + Math.abs(t.getGreen() - u.getGreen()) 
                     //+ Math.abs(t.getBlue() - u.getBlue()) ;

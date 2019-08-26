@@ -11,26 +11,24 @@ import jmr.descriptor.GriddedDescriptor;
 
 /**
  *
+ * Class that implements the comparation between two griddedDescriptor objects 
+ * In this case the comparation will take one tile of one grid each time and will compare 
+ * this tile with all the tiles in the other grid, looking for the minimum. 
+ * Once each tile have search its minimum the comparator search for the minimum of these minimums
+ * 
  * @author Fernando Roldán Zafra
  */
 public class MinimumGridComparator implements Comparator <GriddedDescriptor, Double>{
 
+    /**
+     * Apply this comparator
+     * @param t The first grid
+     * @param u The second grid
+     * @return It returns the minimum diference between all the minimums associated to each tile.
+     */
     @Override
     public Double apply(GriddedDescriptor t, GriddedDescriptor u) {
         
-        /*
-        Double dist;
-        Double distMin = (Double)t.getTileDescriptor(0).compare(u.getTileDescriptor(0));
-        for(int i = 0; i<t.getNumTiles(); i++){
-            for(int j = 0; j<u.getNumTiles(); j++){
-                dist = (Double)t.getTileDescriptor(i).compare(u.getTileDescriptor(j));
-                if(dist < distMin){
-                    distMin = dist;
-                }
-            }
-        }
-        return distMin;
-        */
         ArrayList<Double> min_list = new ArrayList<Double>();
         Double dist;
         Double dist_min; 
