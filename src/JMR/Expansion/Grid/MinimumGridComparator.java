@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package JMR.Expansion;
+package JMR.Expansion.Grid;
 
 import java.util.ArrayList;
 import jmr.descriptor.Comparator;

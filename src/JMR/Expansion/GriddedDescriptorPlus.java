@@ -5,6 +5,7 @@
  */
 package JMR.Expansion;
 
+import JMR.Expansion.Grid.MinimumGridComparator;
 import java.awt.image.BufferedImage;
 import jmr.descriptor.Comparator;
 import jmr.descriptor.GriddedDescriptor;

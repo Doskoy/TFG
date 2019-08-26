@@ -712,7 +712,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
          * @param fuzzy if true it will initialize the map for create a fuzzy color
          * space.
          */
-        public void initColors(Boolean fuzzy){
+        private void initColors(Boolean fuzzy){
             if(fuzzy){
                 prototype.put("Pink", new Point3D(220, 160, 161));
                 prototype.put("Red", new Point3D(230, 0, 38));
