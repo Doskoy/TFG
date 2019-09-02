@@ -1,4 +1,4 @@
-package JMR.Expansion;
+package jmr.expansion;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -34,7 +34,6 @@ import jmr.initial.descriptor.mpeg7.MPEG7DominantColors.MPEG7SingleDominatColor;
  * by a list of labels and a list of properties specified at the moment
  * of its creation
  * 
- * @param <BufferedImage> The Type of the media described by this descriptor
  * @author Fernando Roldán Zafra
  */
 
@@ -89,7 +88,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     
     /**
      * Construct an object with no image, or properties just with a list of labels. It is used to make querys to the database.
-     * It will use the {@link InclusionComparator()}
+     * It will use the InclusionComparator
      * @param label the label that will have the object
      */
     
@@ -171,8 +170,10 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     private void initProperties(){
         MediaDescriptor descriptor;
         for (Class c : this.classProperties){
-            descriptor = MediaDescriptorFactory.getInstance(c, this.source);
-            this.properties.add(descriptor);
+            if(c != LabeledColorDescriptor.class){
+                descriptor = MediaDescriptorFactory.getInstance(c, this.source);
+                this.properties.add(descriptor);
+            }
         }
     }
     
@@ -211,7 +212,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     }
     
     /**
-     * Returns the {@link jmr.descriptor.label.LabelDescriptor()} of this object
+     * Returns the LabelDescriptor object asociated to this object
      * @return the label of this object
      */
     public LabelDescriptor getLabel(){
@@ -275,9 +276,10 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     }
     
     /**
-     * Functional class that implements the comparation between this descriptor.
-     * It only compares the labels and if it is indicated it also compares the 
-     * properties as a label. 
+     * Functional class that implements the comparation between objects of this class.
+     * It is designed to compare only the labels and if it is indicated it compares
+     * the properties as labels. 
+     * This comparator will be specially useful in the image search based only on labels.
      */
     static public class OnlyLabelsComparator implements Comparator <LabelProperties, Double>{
         /**
@@ -525,10 +527,9 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
     }
     
     /**
-     * If both arguments have any common label, it compare the properties otherwise 
-     * it returns infinity
-     * @param weights Weights that are going to be used to compare the properties
-     * @return It returns infinity if there are not any common label, 0 if they have a common label
+     * Functional class that implements the comparation based on the soft-equality. 
+     * if the objects that are being compared has any common label it compares their visual
+     * properties, otherwise, it returns infinity.
      */
     static public class SoftEqualComparator implements Comparator <LabelProperties, Double>{
         /**
@@ -654,6 +655,10 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
          */
         private static Map<String, Point3D> prototype = new ISCCColorMap(ISCCColorMap.TYPE_CUSTOM);
         
+        static{
+            initColors();
+        }
+        
         /**
          * Construct a descriptor of this type using the given media
          * @param media The media that will be used to create this descriptor
@@ -662,7 +667,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
             super(media);
             init(media, WEIGHTED);
             this.classProperties = new Class[]{LabelDescriptor.class};
-            this.comparator = new InclusionComparator();
+            this.comparator = super.DEFAULT_COMPARATOR;
         }
                 
         /**
@@ -680,7 +685,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
             LabelDescriptor color = Color;
             this.properties = new DescriptorList(null);
             this.properties.add(color);
-            this.comparator = new InclusionComparator();
+            this.comparator = super.DEFAULT_COMPARATOR;
         }
         
         /**
@@ -692,7 +697,6 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
         
         public void init(BufferedImage img, Boolean fuzzy){
             if(this.classProperties != null){
-                initColors(fuzzy);
                 if(this.classifier == null){
                     this.label = new LabelDescriptor(img);
                 }
@@ -712,13 +716,13 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
          * @param fuzzy if true it will initialize the map for create a fuzzy color
          * space.
          */
-        private void initColors(Boolean fuzzy){
-            if(fuzzy){
+        private static void initColors(){
+            //if(fuzzy){
                 prototype.put("Pink", new Point3D(220, 160, 161));
                 prototype.put("Red", new Point3D(230, 0, 38));
                 prototype.put("Orange", new Point3D(243, 132, 1));
                 prototype.put("Brown", new Point3D(180,116,94));
-                prototype.put("Yellow", new Point3D(201, 174, 93));
+                prototype.put("Yellow", new Point3D(243, 195, 1));//201, 174, 93
                 prototype.put("Olive", new Point3D(102, 93, 30));
                 prototype.put("Yellow-Green", new Point3D(141, 182, 1));
                 prototype.put("Green", new Point3D(70, 180, 20));
@@ -727,7 +731,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
                 prototype.put("White", new Point3D(252, 252, 249));
                 prototype.put("Gray", new Point3D(135, 134, 134));
                 prototype.put("Black", new Point3D(7, 7, 7));
-            }else{           
+            //}else{           
                 //Pink
                 List<Color> colors = new ArrayList<Color>(
                         Arrays.asList(new Color(254, 181, 186), new Color(196, 131, 121))
@@ -736,7 +740,8 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
 
                 //Red
                 colors = new ArrayList<Color>(
-                        Arrays.asList(new Color(190, 1, 50) , new Color(150,10,10), new Color(180, 60, 70), new Color(130, 20, 45), new Color(150,50,50))
+                        Arrays.asList(new Color(190, 1, 50) , new Color(150,10,10),
+                                new Color(180, 60, 70), new Color(130, 20, 45), new Color(150,50,50))
                 );
                 basic_colors.put("Red", colors);
 
@@ -748,7 +753,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
 
                 //Brown
                 colors = new ArrayList<Color>(
-                        Arrays.asList(new Color(138,73,37), new Color(180,116,94))
+                        Arrays.asList(new Color(138,73,37), new Color(180,116,94), new Color(66, 37, 24))
                 );
                 basic_colors.put("Brown", colors);
 
@@ -760,20 +765,20 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
 
                 //Olive
                 colors = new ArrayList<Color>(
-                        Arrays.asList(new Color(102,93,30))
+                        Arrays.asList(new Color(102,93,30), new Color(120, 120, 60), new Color(60,60,20))
                 );
                 basic_colors.put("Olive", colors);
 
-    //            //Yellow-Green
-    //            colors = new ArrayList<Color>(
-    //                    Arrays.asList(new Color(141,182,1))
-    //            );
-    //            basic_colors.put("Yellow-Green", colors);
-    //            
+                //Yellow-Green
+                colors = new ArrayList<Color>(
+                        Arrays.asList(new Color(141,182,20))
+                );
+                basic_colors.put("Yellow-Green", colors);
+                
                 //Green
                 colors = new ArrayList<Color>(
-                        Arrays.asList(  new Color(0,152,70), new Color(141,182,1), new Color(39,166,76), 
-                                        new Color(126,159,46), new Color(138,154,91), new Color(23,54,32), new Color(103, 146, 103), 
+                        Arrays.asList(  new Color(0,152,70), new Color(39,166,76), 
+                                        new Color(138,154,91), new Color(23,54,32), new Color(103, 146, 103), 
                                         new Color(147,197,146))
                 );
                 basic_colors.put("Green", colors);
@@ -808,7 +813,7 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
                         Arrays.asList(new Color(20,20,20), new Color(40,40,40))
                 );
                 basic_colors.put("Black", colors);
-            }
+            //}
         }
         
         /**
@@ -818,8 +823,9 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
          * @return Label of colors
          */
         public LabelDescriptor getLabeledColors(BufferedImage image, Boolean weighted){
+            MPEG7DominantColors dominant_colors = new MPEG7DominantColors(0.6f, 0.03f);
+            
             if(!weighted){
-                MPEG7DominantColors dominant_colors = new MPEG7DominantColors(0.6f, 0.03f);
                 dominant_colors.setSource(image);
 
                 ArrayList<MPEG7SingleDominatColor> list_of_colors = dominant_colors.getDominantColors();
@@ -854,7 +860,6 @@ public class LabelProperties extends MediaDescriptorAdapter<BufferedImage> imple
                 //Map prototipos = new ISCCColorMap(ISCCColorMap.TYPE_BASIC);
 //                FuzzyColorSpace fcs = FuzzyColorSpace.Factory.createSphereBasedFCS(prototype);
                 FuzzyColorSpace fcs = FuzzyColorSpace.Factory.createFuzzyCMeansFCS(prototype);
-                MPEG7DominantColors dominant_colors = new MPEG7DominantColors(0.6f, 0.03f);
                 dominant_colors.setSource(image);
                 
                 List<Color> color_list = new ArrayList<Color>();
